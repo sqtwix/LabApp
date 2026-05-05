@@ -1,4 +1,5 @@
-﻿using System;
+﻿using LabApp.Domain.Entities;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,8 +7,24 @@ using System.Threading.Tasks;
 
 namespace LabApp.Application.Interfaces;
 
-internal interface IEquipmentService
+public interface IEquipmentService
 {
+    // Оборудование
+    Task<Equipment> GetEquipmentByIdAsync(int id);
+    Task<IEnumerable<Equipment>> GetAllEquipmentAsync();
+    Task<Equipment> CreateEquipmentAsync(Equipment equipment);
+    Task<Equipment> UpdateEquipmentAsync(Equipment equipment);
+    Task<bool> DeleteEquipmentAsync(int id);
 
+    // Реагенты
+    Task<Reagent> GetReagentByIdAsync(int id);
+    Task<IEnumerable<Reagent>> GetAllReagentsAsync();
+    Task<Reagent> CreateReagentAsync(Reagent reagent);
+    Task<bool> DeleteReagentAsync(int id);
+
+    // Связь исследования – оборудование
+    Task<IEnumerable<Equipment>> GetEquipmentForResearchAsync(int researchId);
+    Task AssignEquipmentToResearchAsync(int researchId, int equipmentId);
+    Task UnassignEquipmentFromResearchAsync(int researchId, int equipmentId);
 }
 
