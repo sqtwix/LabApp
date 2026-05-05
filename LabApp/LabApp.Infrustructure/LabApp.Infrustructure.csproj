@@ -14,4 +14,9 @@
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.2" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\LabApp.Application\LabApp.Application.csproj" />
+    <ProjectReference Include="..\LabApp.Domain\LabApp.Domain.csproj" />
+  </ItemGroup>
+
 </Project>

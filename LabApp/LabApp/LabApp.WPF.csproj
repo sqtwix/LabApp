@@ -13,4 +13,10 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.14" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\LabApp.Application\LabApp.Application.csproj" />
+    <ProjectReference Include="..\LabApp.Domain\LabApp.Domain.csproj" />
+    <ProjectReference Include="..\LabApp.Infrustructure\LabApp.Infrustructure.csproj" />
+  </ItemGroup>
+
 </Project>

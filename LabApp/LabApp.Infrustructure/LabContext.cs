@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using LabApp.Domain.Entities;
+﻿using LabApp.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace LabApp.Infrastructure;
