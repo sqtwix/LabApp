@@ -83,7 +83,7 @@ public partial class LabContext : DbContext
                 .HasColumnName("appointment_id");
             entity.Property(e => e.AppointmentDate).HasColumnName("appointment_date");
             entity.Property(e => e.AppointmentTime).HasColumnName("appointment_time");
-            entity.Property(e => e.PatientId).HasColumnName("patient_id");
+            entity.Property(e => e.PatientId).HasColumnName("patient_id")
             entity.Property(e => e.StaffId).HasColumnName("staff_id");
             entity.Property(e => e.Status)
                 .HasMaxLength(50)
@@ -635,6 +635,10 @@ public partial class LabContext : DbContext
             entity.Property(e => e.Education)
                 .HasMaxLength(100)
                 .HasColumnName("education");
+            entity.Property(e => e.Login).HasMaxLength(50);
+            entity.HasIndex(e => e.Login).IsUnique().HasFilter("login IS NOT NULL");
+            entity.Property(e => e.PasswordHash).HasColumnName("password_hash");
+            entity.Property(e => e.RoleName).HasColumnName("role_name").HasMaxLength(50);
             entity.Property(e => e.FirstName)
                 .HasMaxLength(100)
                 .HasColumnName("first_name");

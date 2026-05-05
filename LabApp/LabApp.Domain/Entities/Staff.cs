@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace LabApp.Domain.Entities;
+﻿namespace LabApp.Domain.Entities;
 
 public partial class Staff
 {
@@ -12,6 +9,9 @@ public partial class Staff
     public string? FirstName { get; set; }
 
     public string? MiddleName { get; set; }
+    public string? Login { get; set; }
+    public string? PasswordHash { get; set; }
+    public string? RoleName { get; set; }
 
     public string? Gender { get; set; }
 
