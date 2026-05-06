@@ -1,7 +1,7 @@
 ﻿using LabApp.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
-namespace LabApp.Infrastructure;
+namespace LabApp.Infrustructure;
 
 public partial class LabContext : DbContext
 {
