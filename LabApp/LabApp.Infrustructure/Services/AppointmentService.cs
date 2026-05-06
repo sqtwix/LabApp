@@ -1,5 +1,4 @@
-﻿using Humanizer;
-using LabApp.Application.Dtos;
+﻿using LabApp.Application.Dtos;
 using LabApp.Application.Interfaces;
 using LabApp.Domain.Entities;
 using Microsoft.EntityFrameworkCore;

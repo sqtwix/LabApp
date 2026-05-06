@@ -1,7 +1,6 @@
 ﻿using LabApp.Application.Dtos;
 using LabApp.Application.Interfaces;
 using LabApp.Domain.Entities;
-using LabApp.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 
 namespace LabApp.Infrustructure.Services;
