@@ -29,5 +29,5 @@ public partial class Patient
 
     public virtual City? City { get; set; }
 
-    public virtual ICollection<InsuranceCompany> Insurances { get; set; } = new List<InsuranceCompany>();
+    public virtual ICollection<PatientInsurance> PatientInsurances { get; set; } = new List<PatientInsurance>();
 }

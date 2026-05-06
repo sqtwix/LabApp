@@ -1,4 +1,5 @@
 ﻿using LabApp.Domain.Entities;
+using LabApp.Application.Dtos;
 
 namespace LabApp.Application.Interfaces;
 
