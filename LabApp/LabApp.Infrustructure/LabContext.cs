@@ -65,7 +65,12 @@ public partial class LabContext : DbContext
     public virtual DbSet<Staff> Staffs { get; set; }
 
     public virtual DbSet<StaffSchedule> StaffSchedules { get; set; }
+
     public virtual DbSet<PatientInsurance> PatientInsurances { get; set; }
+
+    public virtual DbSet<StaffDepartment> StaffDepartments { get; set; }
+
+    public virtual DbSet<StaffSpecialization> StaffSpecializations { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
@@ -737,7 +742,47 @@ public partial class LabContext : DbContext
                     .HasConstraintName("staff_schedule_staffs_fk");
             });
 
-            OnModelCreatingPartial(modelBuilder);
+        modelBuilder.Entity<StaffDepartment>(entity =>
+        {
+            entity.HasKey(e => new { e.StaffId, e.DepartmentId }).HasName("staff_department_pk");
+            entity.ToTable("staff_department");
+            entity.Property(e => e.StaffId).HasColumnName("staff_id");
+            entity.Property(e => e.DepartmentId).HasColumnName("department_id");
+
+            entity.HasOne(d => d.Staff)
+                .WithMany(p => p.StaffDepartments)
+                .HasForeignKey(d => d.StaffId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("staff_department_staffs_fk");
+
+            entity.HasOne(d => d.Department)
+                .WithMany(p => p.StaffDepartments)
+                .HasForeignKey(d => d.DepartmentId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("staff_department_departments_fk");
+        });
+
+        modelBuilder.Entity<StaffSpecialization>(entity =>
+        {
+            entity.HasKey(e => new { e.StaffId, e.SpecializationId }).HasName("staff_specialization_pk");
+            entity.ToTable("staff_specialization");
+            entity.Property(e => e.StaffId).HasColumnName("staff_id");
+            entity.Property(e => e.SpecializationId).HasColumnName("specialization_id");
+
+            entity.HasOne(d => d.Staff)
+                .WithMany(p => p.StaffSpecializations)
+                .HasForeignKey(d => d.StaffId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("staff_specialization_staffs_fk");
+
+            entity.HasOne(d => d.Specialization)
+                .WithMany(p => p.StaffSpecializations)
+                .HasForeignKey(d => d.SpecializationId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("staff_specialization_specializations_fk");
+        });
+
+        OnModelCreatingPartial(modelBuilder);
         }
     partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
 }

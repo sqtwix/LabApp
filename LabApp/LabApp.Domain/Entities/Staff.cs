@@ -42,4 +42,5 @@ public partial class Staff
     public virtual ICollection<Department> Departments { get; set; } = new List<Department>();
 
     public virtual ICollection<Specialization> Specializations { get; set; } = new List<Specialization>();
+
 }

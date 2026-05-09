@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace LabApp.Domain.Entities;
+﻿namespace LabApp.Domain.Entities;
 
 public partial class Department
 {
@@ -14,4 +11,6 @@ public partial class Department
     public virtual ICollection<Service> Services { get; set; } = new List<Service>();
 
     public virtual ICollection<Staff> Staff { get; set; } = new List<Staff>();
+
+    public virtual ICollection<StaffDepartment> StaffDepartments { get; set; } = new List<StaffDepartment>();
 }

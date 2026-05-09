@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace LabApp.Domain.Entities;
+﻿namespace LabApp.Domain.Entities;
 
 public partial class Specialization
 {
@@ -10,4 +7,6 @@ public partial class Specialization
     public string? Name { get; set; }
 
     public virtual ICollection<Staff> Staff { get; set; } = new List<Staff>();
+
+    public virtual ICollection<StaffSpecialization> StaffSpecializations { get; set; } = new List<StaffSpecialization>();
 }

@@ -104,4 +104,3 @@ public class ResearchService : IResearchService
         return await _context.ResultCarrierTypes.ToListAsync();
     }
 }
-
