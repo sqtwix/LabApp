@@ -16,17 +16,41 @@ public class AdminService : IAdminService
 
     public async Task<(bool Success, string Role, int StaffId)> AuthenticateAsync(string login, string password)
     {
-        var staff = await _context.Staffs
-            .FirstOrDefaultAsync(s => s.Login == login);
+        var sql = @"
+            SELECT staff_id, role_name
+            FROM staffs
+            WHERE login = {0}
+              AND password_hash = crypt({1}, password_hash)";
 
-        if (staff == null || string.IsNullOrEmpty(staff.PasswordHash))
+        var result = await _context.Staffs
+            .FromSqlRaw(sql, login, password)
+            .Select(s => new { s.StaffId, s.RoleName })
+            .FirstOrDefaultAsync();
+
+        if (result == null)
             return (false, null, 0);
 
-        // Проверка пароля (здесь можно использовать BCrypt или другой алгоритм)
-        bool valid = VerifyPassword(password, staff.PasswordHash);
-        if (!valid) return (false, null, 0);
+        return (true, result.RoleName, result.StaffId);
+    }
 
-        return (true, staff.RoleName, staff.StaffId);
+    public async Task<Staff> CreateStaffAsync(Staff staff, string plainPassword)
+    {
+        var sql = @"
+            SELECT add_staff(
+                {0}, {1}, {2}, {3}, {4}, {5}, {6},
+                {7}, {8}, {9}, {10}, {11}, {12}, {13}
+            ) AS staff_id";
+
+        var staffId = await _context.Database
+            .SqlQueryRaw<int>(sql,
+                staff.LastName, staff.FirstName, staff.MiddleName,
+                staff.Gender, staff.Phone, staff.Passport, staff.Address,
+                staff.BirthDate, staff.PositionId, staff.CityId, staff.Education,
+                staff.Login, plainPassword, staff.RoleName)
+            .FirstOrDefaultAsync();
+
+        staff.StaffId = staffId;
+        return staff;
     }
 
     public async Task<bool> ChangeStaffRoleAsync(int staffId, string newRole)
@@ -58,12 +82,5 @@ public class AdminService : IAdminService
         if (researchId.HasValue)
             query = query.Where(a => a.ResearchId == researchId.Value);
         return await query.OrderByDescending(a => a.ChangedAt).ToListAsync();
-    }
-
-    // Простая имитация проверки пароля (в реальном проекте используйте BCrypt)
-    private bool VerifyPassword(string password, string hash)
-    {
-        // Заглушка – замените на реальную проверку
-        return password == hash;
     }
 }

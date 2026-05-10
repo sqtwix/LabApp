@@ -6,7 +6,5 @@ public partial class Specialization
 
     public string? Name { get; set; }
 
-    public virtual ICollection<Staff> Staff { get; set; } = new List<Staff>();
-
     public virtual ICollection<StaffSpecialization> StaffSpecializations { get; set; } = new List<StaffSpecialization>();
 }

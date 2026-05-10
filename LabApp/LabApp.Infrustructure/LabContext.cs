@@ -676,44 +676,7 @@ public partial class LabContext : DbContext
                 entity.HasOne(d => d.Position).WithMany(p => p.Staff)
                     .HasForeignKey(d => d.PositionId)
                     .HasConstraintName("staffs_positions_fk");
-
-                entity.HasMany(d => d.Departments).WithMany(p => p.Staff)
-                    .UsingEntity<Dictionary<string, object>>(
-                        "StaffDepartment",
-                        r => r.HasOne<Department>().WithMany()
-                            .HasForeignKey("DepartmentId")
-                            .OnDelete(DeleteBehavior.ClientSetNull)
-                            .HasConstraintName("staff_department_departments_fk"),
-                        l => l.HasOne<Staff>().WithMany()
-                            .HasForeignKey("StaffId")
-                            .OnDelete(DeleteBehavior.ClientSetNull)
-                            .HasConstraintName("staff_department_staffs_fk"),
-                        j =>
-                        {
-                            j.HasKey("StaffId", "DepartmentId").HasName("staff_department_pk");
-                            j.ToTable("staff_department");
-                            j.IndexerProperty<int>("StaffId").HasColumnName("staff_id");
-                            j.IndexerProperty<int>("DepartmentId").HasColumnName("department_id");
-                        });
-
-                entity.HasMany(d => d.Specializations).WithMany(p => p.Staff)
-                    .UsingEntity<Dictionary<string, object>>(
-                        "StaffSpecialization",
-                        r => r.HasOne<Specialization>().WithMany()
-                            .HasForeignKey("SpecializationId")
-                            .OnDelete(DeleteBehavior.ClientSetNull)
-                            .HasConstraintName("staff_specialization_specializations_fk"),
-                        l => l.HasOne<Staff>().WithMany()
-                            .HasForeignKey("StaffId")
-                            .OnDelete(DeleteBehavior.ClientSetNull)
-                            .HasConstraintName("staff_specialization_staffs_fk"),
-                        j =>
-                        {
-                            j.HasKey("StaffId", "SpecializationId").HasName("staff_specialization_pk");
-                            j.ToTable("staff_specialization");
-                            j.IndexerProperty<int>("StaffId").HasColumnName("staff_id");
-                            j.IndexerProperty<int>("SpecializationId").HasColumnName("specialization_id");
-                        });
+ 
             });
 
             modelBuilder.Entity<StaffSchedule>(entity =>
