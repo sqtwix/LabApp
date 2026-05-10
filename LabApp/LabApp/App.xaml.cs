@@ -2,12 +2,13 @@
 using LabApp.Infrastructure.Services;
 using LabApp.Infrustructure;
 using LabApp.Infrustructure.Services;
+using LabApp.WPF;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System.IO;
 using System.Windows;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Configuration.Json;
+
 
 namespace LabApp;
 /// <summary>
@@ -35,8 +36,8 @@ public partial class App : System.Windows.Application
 
         _serviceProvider = services.BuildServiceProvider();
 
-        var mainWindow = _serviceProvider.GetRequiredService<MainWindow>();
-        mainWindow.Show();
+        var loginWindow = _serviceProvider.GetRequiredService<LoginWindow>();
+        loginWindow.Show();
 
         base.OnStartup(e);
     }
@@ -65,6 +66,7 @@ public partial class App : System.Windows.Application
     private void RegistrateViewModels(IServiceCollection services)
     {
         services.AddTransient<MainWindow>();
+        services.AddTransient<LoginWindow>();
     }
 }
 
