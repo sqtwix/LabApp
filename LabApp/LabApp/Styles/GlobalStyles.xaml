@@ -5,7 +5,7 @@
     <!-- Стиль для карточки. Используем DynamicResource для цветов, определённых в BundledTheme -->
     <Style x:Key="LoginCardStyle" TargetType="Border">
         <Setter Property="Background" Value="{DynamicResource MaterialDesignCardBackground}" />
-        <Setter Property="CornerRadius" Value="8" />
+        <Setter Property="CornerRadius" Value="10" />
         <Setter Property="Effect">
             <Setter.Value>
                 <DropShadowEffect BlurRadius="12" ShadowDepth="2" Opacity="0.3" />
@@ -14,14 +14,31 @@
         <Setter Property="Padding" Value="30" />
     </Style>
 
-    <!-- Стиль для кнопки. Используем обновлённые ключи кистей -->
+    <!-- Стиль для кнопки -->
     <Style x:Key="LoginButtonStyle" TargetType="Button"
            BasedOn="{StaticResource MaterialDesignRaisedButton}">
         <Setter Property="Background" Value="{DynamicResource MaterialDesign.Brush.Primary.Mid}" />
         <Setter Property="Foreground" Value="{DynamicResource MaterialDesign.Brush.Primary.MidForeground}" />
         <Setter Property="Width" Value="120" />
         <Setter Property="Height" Value="40" />
+        <Setter Property="FontSize" Value="20"/>
         <Setter Property="Margin" Value="0,20,0,0" />
         <Setter Property="HorizontalAlignment" Value="Right" />
+        <Setter Property="materialDesign:ButtonAssist.CornerRadius" Value="10" />
+        <Setter Property="Effect">
+            <Setter.Value>
+                <DropShadowEffect BlurRadius="12" ShadowDepth="2" Opacity="0.3" />
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- Стили для текстовых полей -->
+    <Style x:Key="TextBoxStyle" TargetType="TextBox"
+        BasedOn="{StaticResource MaterialDesignComboBoxEditableTextBox}">
+        <Setter Property="Width" Value="120" />
+        <Setter Property="Height" Value="40" />
+        <Setter Property="Margin" Value="0,20,0,0" />
+        <Setter Property="HorizontalAlignment" Value="Center" />
+        <Setter Property="materialDesign:ButtonAssist.CornerRadius" Value="8" />
     </Style>
 </ResourceDictionary>

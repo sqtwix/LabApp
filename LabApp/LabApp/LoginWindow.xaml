@@ -10,20 +10,27 @@
                 Width="380" Height="380"
                 VerticalAlignment="Center" HorizontalAlignment="Center">
             <StackPanel>
-                <TextBlock Text="Вход в систему" FontSize="24" FontWeight="SemiBold"
+                <TextBlock Text="Медицинская лаборатория" 
+                           FontSize="30" 
+                           TextWrapping="Wrap"
+                           FontWeight="SemiBold"
                            Foreground="{DynamicResource MaterialDesign.Brush.Primary.Mid}"
                            HorizontalAlignment="Center"
                            Margin="0,0,0,30"/>
 
                 <TextBox x:Name="LoginTextBox"
+                         FontSize="22"
                          materialDesign:HintAssist.Hint="Логин"
-                         Margin="0,10"/>
+                         Margin="10"/>
 
                 <PasswordBox x:Name="PasswordBox"
+                             FontSize="22"
                              materialDesign:HintAssist.Hint="Пароль"
-                             Margin="0,10"/>
+                             Margin="10"/>
 
-                <Button Content="ВОЙТИ" Click="LoginButton_Click"
+                <Button Content="ВОЙТИ" 
+                        Click="LoginButton_Click"
+                        HorizontalAlignment="Center"
                         Style="{StaticResource LoginButtonStyle}"/>
             </StackPanel>
         </Border>
