@@ -1,4 +1,5 @@
 ﻿using LabApp.Application.Interfaces;
+using LabApp.WPF.Utils;
 using Microsoft.Extensions.DependencyInjection;
 using System.Windows;
 using System.Windows.Controls;
@@ -30,8 +31,8 @@ namespace LabApp.WPF
             if (success)
             {
                 // Сохраняем информацию о пользователе
-                App.Current.Properties["StaffId"] = staffId;
-                App.Current.Properties["Role"] = role;
+                CurrentUser.StaffId = staffId;
+                CurrentUser.Role = role;
 
                 // Открываем главное окно
                 var mainWindow = _serviceProvider.GetRequiredService<MainWindow>();
