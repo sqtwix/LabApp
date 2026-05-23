@@ -16,12 +16,7 @@ public class AdminService : IAdminService
 
     public async Task<(bool Success, string Role, int StaffId)> AuthenticateAsync(string login, string password)
     {
-        var sql = @"
-            SELECT staff_id, role_name
-            FROM staffs
-            WHERE login = {0}
-              AND password_hash = crypt({1}, password_hash)";
-
+        var sql = "SELECT * FROM authenticate_staff({0}, {1})";
         var result = await _context.Staffs
             .FromSqlRaw(sql, login, password)
             .Select(s => new { s.StaffId, s.RoleName })

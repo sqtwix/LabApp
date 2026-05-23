@@ -29,7 +29,7 @@ namespace LabApp.WPF
             var (success, role, staffId) = await _adminService.AuthenticateAsync(login, password);
             if (success)
             {
-                // Сохраняем информацию о пользователе (можно в статический класс или в App)
+                // Сохраняем информацию о пользователе
                 App.Current.Properties["StaffId"] = staffId;
                 App.Current.Properties["Role"] = role;
 
