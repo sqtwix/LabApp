@@ -1,7 +1,7 @@
 ﻿<Window x:Class="LabApp.WPF.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Медицинская лаборатория" Height="600" Width="1000"
+        Title="Медицинская лаборатория" Height="680" Width="1080"
         WindowStartupLocation="CenterScreen">
 
     <Window.Resources>
@@ -9,34 +9,69 @@
     </Window.Resources>
 
     <Grid>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="200"/>
-            <ColumnDefinition Width="*"/>
-        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
 
-        <!-- Левая панель с прокруткой -->
-        <Border Grid.Column="0" BorderBrush="LightGray" BorderThickness="0,0,1,0">
-            <ScrollViewer VerticalScrollBarVisibility="Auto">
-                <ListBox ItemsSource="{Binding MenuItems}" 
-                         SelectedItem="{Binding SelectedMenuItem}"
-                         Background="Transparent"
-                         BorderThickness="0">
-                    <ListBox.ItemTemplate>
-                        <DataTemplate>
-                            <TextBlock Text="{Binding Header}" 
-                                       Visibility="{Binding IsVisible, Converter={StaticResource BoolToVisibility}}"
-                                       Margin="10,5"
-                                       FontSize="14"/>
-                        </DataTemplate>
-                    </ListBox.ItemTemplate>
-                </ListBox>
-            </ScrollViewer>
-        </Border>
+        <!-- Меню -->
+        <Grid Grid.Row="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            
+            <Menu Grid.Column="0">
+                <MenuItem Header="Система">...</MenuItem>
+                <MenuItem Header="Функции">...</MenuItem>
+                <MenuItem Header="Отчёты" />
+                <MenuItem Header="🛈" />
+            </Menu>
+            
+            <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="10,0">
+                <TextBlock Text="{Binding UserRole}" 
+                           FontWeight="Bold"
+                           ToolTip="роль"/>
+                <TextBlock
+                    Width="20"/>
 
-        <!-- Правая область с Frame -->
-        <Frame Grid.Column="1" 
-               x:Name="ContentFrame" 
-               Content="{Binding CurrentPage}" 
-               NavigationUIVisibility="Hidden"/>
+                <TextBlock Text="{Binding UserFullName}" 
+                           FontWeight="Bold"
+                           ToolTip="ФИО"/>
+            </StackPanel>
+        </Grid>
+
+        <!-- Основная область: левая панель + Frame -->
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="200"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Левая панель с прокруткой -->
+            <Border Grid.Column="0" BorderBrush="LightGray" BorderThickness="0,0,1,0">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <ListBox ItemsSource="{Binding MenuItems}" 
+                             SelectedItem="{Binding SelectedMenuItem}"
+                             Background="Transparent"
+                             BorderThickness="0">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Header}" 
+                                           Visibility="{Binding IsVisible, Converter={StaticResource BoolToVisibility}}"
+                                           Margin="10,5"
+                                           FontSize="14"/>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                </ScrollViewer>
+            </Border>
+
+            <!-- Правая область с Frame -->
+            <Frame Grid.Column="1" 
+                   x:Name="ContentFrame" 
+                   Content="{Binding CurrentPage}" 
+                   NavigationUIVisibility="Hidden"/>
+        </Grid>
     </Grid>
 </Window>

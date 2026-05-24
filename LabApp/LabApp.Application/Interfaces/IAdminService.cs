@@ -6,7 +6,7 @@ namespace LabApp.Application.Interfaces;
 public interface IAdminService
 {
     // Аутентификация и роли (если реализовано)
-    Task<(bool Success, string Role, int StaffId)> AuthenticateAsync(string login, string password);
+    Task<(bool Success, string FullName, string Role, int StaffId)> AuthenticateAsync(string login, string password);
     Task<bool> ChangeStaffRoleAsync(int staffId, string newRole);
 
     // Аудит изменений

@@ -1,9 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using LabApp.WPF.Utils;
-using Microsoft.Extensions.DependencyInjection;
 using System.Collections.ObjectModel;
-using System.Windows;
 using System.Windows.Controls;
 
 namespace LabApp.WPF.ViewModels
@@ -12,6 +10,9 @@ namespace LabApp.WPF.ViewModels
     {
         private readonly IServiceProvider _serviceProvider;
         private readonly string _userRole;
+
+        public string? UserRole => CurrentUser.Role;
+        public string? UserFullName => CurrentUser.FullName;
 
         [ObservableProperty]
         private Page? _currentPage;
@@ -74,7 +75,7 @@ namespace LabApp.WPF.ViewModels
                 if (e.PropertyName == nameof(SelectedMenuItem) && SelectedMenuItem?.Command != null)
                 {
                     SelectedMenuItem.Command.Execute(null);
-                    SelectedMenuItem = null; // сброс, чтобы можно было повторно выбрать тот же пункт
+                    SelectedMenuItem = null; 
                 }
             };
         }

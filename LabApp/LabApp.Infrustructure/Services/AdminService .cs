@@ -14,18 +14,29 @@ public class AdminService : IAdminService
         _context = context;
     }
 
-    public async Task<(bool Success, string Role, int StaffId)> AuthenticateAsync(string login, string password)
+    public async Task<(bool Success, string? FullName, string? Role, int StaffId)> AuthenticateAsync(string login, string password)
     {
-        var sql = "SELECT * FROM authenticate_staff({0}, {1})";
-        var result = await _context.Staffs
+        var sql = "SELECT staff_id, role_name FROM authenticate_staff({0}, {1})";
+        var authResult = await _context.Staffs
             .FromSqlRaw(sql, login, password)
             .Select(s => new { s.StaffId, s.RoleName })
             .FirstOrDefaultAsync();
 
-        if (result == null)
-            return (false, null, 0);
+        if (authResult == null)
+            return (false, null, null, 0);
 
-        return (true, result.RoleName, result.StaffId);
+        var staff = await _context.Staffs
+            .Where(s => s.StaffId == authResult.StaffId)
+            .Select(s => new { s.FirstName, s.LastName, s.MiddleName })
+            .FirstOrDefaultAsync();
+
+        if (staff == null)
+            return (false, null, null, 0);
+
+        string ruRoleName = GetRussianRole(authResult.RoleName);
+
+        string fullName = $"{staff.LastName[0]}. {staff.FirstName[0]}. {staff.MiddleName}".Trim();
+        return (true, fullName, ruRoleName, authResult.StaffId);
     }
 
     public async Task<Staff> CreateStaffAsync(Staff staff, string plainPassword)
@@ -77,5 +88,24 @@ public class AdminService : IAdminService
         if (researchId.HasValue)
             query = query.Where(a => a.ResearchId == researchId.Value);
         return await query.OrderByDescending(a => a.ChangedAt).ToListAsync();
+    }
+
+    public string? GetRussianRole(string? enRoleName)
+    {
+        switch (enRoleName)
+        {
+            case "lab_spec_role":
+                return "лаборант";
+                break;
+            case "registrar_role":
+                return "регистратор";
+                break;
+            case "administrator_role":
+                return "Среда";
+                break;
+            default:
+                return "Неизвестная роль";
+                break;
+        }
     }
 }

@@ -27,12 +27,13 @@ namespace LabApp.WPF
             var login = LoginTextBox.Text;
             var password = PasswordBox.Password;
 
-            var (success, role, staffId) = await _adminService.AuthenticateAsync(login, password);
+            var (success, fullname, role, staffId) = await _adminService.AuthenticateAsync(login, password);
             if (success)
             {
                 // Сохраняем информацию о пользователе
                 CurrentUser.StaffId = staffId;
                 CurrentUser.Role = role;
+                CurrentUser.FullName = fullname;
 
                 // Открываем главное окно
                 var mainWindow = _serviceProvider.GetRequiredService<MainWindow>();

@@ -30,6 +30,7 @@
 
   <ItemGroup>
     <Folder Include="Styles\" />
+    <Folder Include="Pages\" />
   </ItemGroup>
 
 </Project>
