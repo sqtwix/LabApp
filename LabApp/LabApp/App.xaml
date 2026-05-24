@@ -13,7 +13,10 @@
                 <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesign2.Defaults.xaml" />
                 <!-- Подключение глобальных стилей -->
                 <ResourceDictionary Source="/Styles/GlobalStyles.xaml" />
+                
             </ResourceDictionary.MergedDictionaries>
+            
+            <BooleanToVisibilityConverter x:Key="BoolToVisibility"/>
         </ResourceDictionary>
     </Application.Resources>
 </Application>
