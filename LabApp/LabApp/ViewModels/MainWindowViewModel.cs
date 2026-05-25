@@ -1,6 +1,8 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using LabApp.WPF.Pages;
 using LabApp.WPF.Utils;
+using Microsoft.Extensions.DependencyInjection;
 using System.Collections.ObjectModel;
 using System.Windows.Controls;
 
@@ -82,13 +84,13 @@ namespace LabApp.WPF.ViewModels
 
         private void NavigateToPatients()
         {
-            // TODO: заменить на страницу пациентов
-            CurrentPage = new Page { Content = new TextBlock { Text = "Пациенты – в разработке" } };
+            CurrentPage = _serviceProvider.GetRequiredService<PatientPage>();
         }
 
+        [RelayCommand]
         private void NavigateToStaff()
         {
-            CurrentPage = new Page { Content = new TextBlock { Text = "Сотрудники – в разработке" } };
+            CurrentPage = _serviceProvider.GetRequiredService<StaffPage>();
         }
 
         private void NavigateToAppointments()

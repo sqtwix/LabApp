@@ -668,6 +668,9 @@ public partial class LabContext : DbContext
                     .HasMaxLength(20)
                     .HasColumnName("phone");
                 entity.Property(e => e.PositionId).HasColumnName("position_id");
+                entity.Property(e => e.Login).HasColumnName("login");
+                entity.Property(e => e.PasswordHash).HasColumnName("password_hash");
+                entity.Property(e => e.RoleName).HasColumnName("role_name");
 
                 entity.HasOne(d => d.City).WithMany(p => p.Staff)
                     .HasForeignKey(d => d.CityId)

@@ -1,0 +1,36 @@
+﻿<Page x:Class="LabApp.WPF.Pages.StaffPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      Title="Сотрудники">
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,10">
+            <Button Command="{Binding LoadDataCommand}" Content="⟳" Width="80" Margin="0,0,10,0"/>
+            <Button Command="{Binding AddStaffCommand}" Content="+" Width="80" Margin="0,0,10,0"/>
+        </StackPanel>
+
+        <DataGrid Grid.Row="1" 
+                  ItemsSource="{Binding StaffList}" 
+                  SelectedItem="{Binding SelectedStaff}"
+                  AutoGenerateColumns="True"
+                  IsReadOnly="False"
+                  CanUserAddRows="False"
+                  RowEditEnding="DataGrid_RowEditEnding">
+            <!-- Если нужны комбобоксы для PositionId и CityId, можно задать столбцы вручную -->
+            <DataGrid.ContextMenu>
+                <ContextMenu>
+                    <MenuItem Header="Удалить" Command="{Binding DeleteStaffCommand}" CommandParameter="{Binding SelectedItem, RelativeSource={RelativeSource AncestorType=DataGrid}}"/>
+                </ContextMenu>
+            </DataGrid.ContextMenu>
+        </DataGrid>
+
+        <StatusBar Grid.Row="2">
+            <TextBlock Text="{Binding StaffList.Count, StringFormat='Всего сотрудников: {0}'}"/>
+        </StatusBar>
+    </Grid>
+</Page>

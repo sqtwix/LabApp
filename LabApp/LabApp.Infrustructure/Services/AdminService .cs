@@ -101,7 +101,7 @@ public class AdminService : IAdminService
                 return "регистратор";
                 break;
             case "administrator_role":
-                return "Среда";
+                return "админ";
                 break;
             default:
                 return "Неизвестная роль";

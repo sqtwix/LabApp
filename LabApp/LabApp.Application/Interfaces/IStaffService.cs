@@ -11,6 +11,8 @@ public interface IStaffService
     Task<Staff> UpdateStaffAsync(Staff staff);
     Task<bool> DeleteStaffAsync(int id);
 
+    Task<IEnumerable<City>> GetAllCitiesAsync();
+
     // Должности
     Task<IEnumerable<Position>> GetAllPositionsAsync();
 

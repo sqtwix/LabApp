@@ -133,6 +133,11 @@ public class StaffService : IStaffService
             .ToListAsync();
     }
 
+    public async Task<IEnumerable<City>> GetAllCitiesAsync()
+    {
+        return await _context.Cities.ToListAsync();
+    }
+
     public async Task<StaffSchedule> AddScheduleAsync(StaffSchedule schedule)
     {
         _context.StaffSchedules.Add(schedule);

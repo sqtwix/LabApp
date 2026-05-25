@@ -3,6 +3,7 @@ using LabApp.Infrastructure.Services;
 using LabApp.Infrustructure;
 using LabApp.Infrustructure.Services;
 using LabApp.WPF;
+using LabApp.WPF.Pages;
 using LabApp.WPF.ViewModels;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -70,6 +71,10 @@ public partial class App : System.Windows.Application
         services.AddTransient<LoginWindow>();
         services.AddTransient<MainWindowViewModel>();
         services.AddTransient<MainWindow>();
+        services.AddTransient<PatientPageViewModel>();
+        services.AddTransient<PatientPage>();
+        services.AddTransient<StaffPageViewModel>();
+        services.AddTransient<StaffPage>();
 
     }
 }
