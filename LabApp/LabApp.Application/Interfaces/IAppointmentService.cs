@@ -22,5 +22,9 @@ public interface IAppointmentService
     Task<int?> GetPaymentTypeForServiceAsync(int appointmentId, int researchId, int staffId);
     Task<bool> UpdateServicePaymentTypeAsync(int appointmentId, int researchId, int staffId, int newPaymentTypeId);
     Task<decimal> GetTotalCostForAppointmentAsync(int appointmentId);
+
+    Task<IEnumerable<Appointment>> GetAllAppointmentsAsync();
+    Task<IEnumerable<Patient>> GetAllPatientsAsync();
+    Task<IEnumerable<Staff>> GetAllStaffAsync();
 }
 

@@ -1,5 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using LabApp.Application.Dtos;
 using LabApp.WPF.Pages;
 using LabApp.WPF.Utils;
 using Microsoft.Extensions.DependencyInjection;
@@ -93,9 +94,10 @@ namespace LabApp.WPF.ViewModels
             CurrentPage = _serviceProvider.GetRequiredService<StaffPage>();
         }
 
+        [RelayCommand]
         private void NavigateToAppointments()
         {
-            CurrentPage = new Page { Content = new TextBlock { Text = "Назначения – в разработке" } };
+            CurrentPage = _serviceProvider.GetRequiredService<AppointmentsPage>();
         }
 
         private void NavigateToReports()

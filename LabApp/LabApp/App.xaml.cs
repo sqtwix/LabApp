@@ -75,6 +75,8 @@ public partial class App : System.Windows.Application
         services.AddTransient<PatientPage>();
         services.AddTransient<StaffPageViewModel>();
         services.AddTransient<StaffPage>();
+        services.AddTransient<AppointmentsPageViewModel>();
+        services.AddTransient<AppointmentsPage>();
 
     }
 }

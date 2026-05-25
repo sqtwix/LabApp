@@ -35,8 +35,12 @@ public class AppointmentService : IAppointmentService
         {
             StaffId = dto.StaffId,
             PatientId = dto.PatientId,
-            AppointmentTime = TimeOnly.FromTimeSpan(dto.AppointmentTime),
-            AppointmentDate = DateOnly.FromDateTime(dto.AppointmentDate),
+            AppointmentTime = dto.AppointmentTime.HasValue
+                ? TimeOnly.FromTimeSpan(dto.AppointmentTime.Value)
+                : null,
+            AppointmentDate = dto.AppointmentDate.HasValue
+                ? DateOnly.FromDateTime(dto.AppointmentDate.Value)
+                : null,
             Status = dto.Status ?? "Запланирована"
         };
         _context.Appointments.Add(appointment);
@@ -131,6 +135,24 @@ public class AppointmentService : IAppointmentService
             .Join(_context.Researches, s => s.ResearchId, r => r.ResearchId, (s, r) => r.Cost ?? 0)
             .SumAsync();
         return total;
+    }
+
+    public async Task<IEnumerable<Appointment>> GetAllAppointmentsAsync()
+    {
+        return await _context.Appointments
+            .Include(a => a.Patient)
+            .Include(a => a.Staff)
+            .ToListAsync();
+    }
+
+    public async Task<IEnumerable<Patient>> GetAllPatientsAsync()
+    {
+        return await _context.Patients.ToListAsync();
+    }
+
+    public async Task<IEnumerable<Staff>> GetAllStaffAsync()
+    {
+        return await _context.Staffs.ToListAsync();
     }
 }
 
