@@ -1,7 +1,11 @@
-﻿using LabApp.Application.Interfaces;
+﻿using LabApp.Application.Dtos;
+using LabApp.Application.Interfaces;
+using LabApp.Domain.Entities;
 using LabApp.Infrustructure;
 using Microsoft.EntityFrameworkCore;
-using LabApp.Application.Dtos;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace LabApp.Infrastructure.Services;
 
@@ -14,37 +18,47 @@ public class ReportingService : IReportingService
         _context = context;
     }
 
-    public async Task<(string LabId, decimal Profit)> GetProfitAsync(int labId, DateTime? startDate, DateTime? endDate)
+    public async Task<decimal> GetProfitAsync(int labId, DateTime startDate, DateTime endDate)
     {
-        // Вызов функции get_profit из базы
-        var result = await _context.Set<ProfitResult>()
-            .FromSqlRaw("SELECT * FROM get_profit({0}, {1}, {2})", labId, startDate, endDate)
-            .ToListAsync();
-        var row = result.FirstOrDefault();
-        return (row?.LabId ?? labId.ToString(), row?.Profit ?? 0);
+        var startStr = startDate.ToString("yyyy-MM-dd");
+        var endStr = endDate.ToString("yyyy-MM-dd");
+        var sql = $"SELECT * FROM get_profit({labId}, '{startStr}'::date, '{endStr}'::date)";
+
+        var result = await _context.Database
+            .SqlQueryRaw<ProfitResult>(sql)
+            .FirstOrDefaultAsync();
+
+        return result?.profit ?? 0;
     }
 
     public async Task<IEnumerable<DepartmentStaffCountDto>> GetDepartmentsWithStaffCountAsync()
     {
-        // Используем представление get_deprtments_with_staff_count
-        var query = await _context.Departments
-            .Join(_context.StaffDepartments, d => d.DepartmentId, sd => sd.DepartmentId, (d, sd) => new { d, sd })
-            .Join(_context.Staffs, ds => ds.sd.StaffId, s => s.StaffId, (ds, s) => new { ds.d, s })
-            .GroupBy(x => new { x.d.DepartmentId, x.d.Name })
-            .Select(g => new DepartmentStaffCountDto
-            {
-                DepartmentId = g.Key.DepartmentId,
-                DepartmentName = g.Key.Name,
-                StaffCount = g.Count()
-            })
-            .ToListAsync();
-        return query;
+        var query = await _context.GetDeprtmentsWithStaffCounts.ToListAsync();
+        return query.Select(item => new DepartmentStaffCountDto
+        {
+            DepartmentId = item.IdОтделения ?? 0,          // int? → int
+            DepartmentName = item.НазваниеОтделения ?? "",
+            StaffCount = (int)(item.КолВоСотурдниковВОтделении ?? 0) // long? → int
+        });
     }
-}
 
-// Вспомогательный класс для результата profit
-internal class ProfitResult
-{
-    public string LabId { get; set; }
-    public decimal Profit { get; set; }
+    public async Task<IEnumerable<Patient>> GetPensionPatientsAsync()
+    {
+        var pensionView = await _context.GetPensionPatients.ToListAsync();
+        var patients = pensionView.Select(p => new Patient
+        {
+            PatientId = p.IdПациента ?? 0,
+            // ФИО может быть в формате "Фамилия Имя Отчество". Разбиваем.
+            LastName = p.Фио?.Split(' ').FirstOrDefault() ?? "",
+            FirstName = p.Фио?.Split(' ').Skip(1).FirstOrDefault() ?? "",
+            MiddleName = p.Фио?.Split(' ').Skip(2).FirstOrDefault(),
+            Gender = p.Пол
+        });
+        return patients;
+    }
+    private class ProfitResult
+    {
+        public string lab_id { get; set; }    // точно как в SQL
+        public decimal profit { get; set; }   // точно как в SQL
+    }
 }

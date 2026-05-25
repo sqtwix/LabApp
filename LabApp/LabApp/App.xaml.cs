@@ -77,7 +77,10 @@ public partial class App : System.Windows.Application
         services.AddTransient<StaffPage>();
         services.AddTransient<AppointmentsPageViewModel>();
         services.AddTransient<AppointmentsPage>();
-
+        services.AddTransient<ResearchesPageViewModel>();
+        services.AddTransient<ResearchesPage>();
+        services.AddTransient<ReportsPageViewModel>();
+        services.AddTransient<ReportsPage>();
     }
 }
 

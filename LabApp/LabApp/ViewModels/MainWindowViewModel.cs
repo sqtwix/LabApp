@@ -1,6 +1,5 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using LabApp.Application.Dtos;
 using LabApp.WPF.Pages;
 using LabApp.WPF.Utils;
 using Microsoft.Extensions.DependencyInjection;
@@ -28,36 +27,41 @@ namespace LabApp.WPF.ViewModels
         public MainWindowViewModel(IServiceProvider serviceProvider)
         {
             _serviceProvider = serviceProvider;
-            _userRole = CurrentUser.Role ?? "registrar_role";
+            _userRole = CurrentUser.Role ?? "регистратор";
             BuildMenu();
         }
 
         private void BuildMenu()
         {
-            // Создаём пункты меню с командами и видимостью в зависимости от роли
             var patientsItem = new MenuItemViewModel
             {
                 Header = "Пациенты",
                 Command = new RelayCommand(NavigateToPatients),
-                IsVisible = _userRole != "lab_spec_role"
+                IsVisible = _userRole != "лаборант"
             };
             var staffItem = new MenuItemViewModel
             {
                 Header = "Сотрудники",
                 Command = new RelayCommand(NavigateToStaff),
-                IsVisible = _userRole != "registrar_role"
+                IsVisible = _userRole != "регистратор"
             };
             var appointmentsItem = new MenuItemViewModel
             {
                 Header = "Назначения",
                 Command = new RelayCommand(NavigateToAppointments),
-                IsVisible = true // все роли видят назначения
+                IsVisible = true
+            };
+            var researchesItem = new MenuItemViewModel
+            {
+                Header = "Исследования",
+                Command = new RelayCommand(NavigateToResearches),
+                IsVisible = _userRole != "регистратор"
             };
             var reportsItem = new MenuItemViewModel
             {
                 Header = "Отчёты",
                 Command = new RelayCommand(NavigateToReports),
-                IsVisible = _userRole == "administrator_role"
+                IsVisible = _userRole == "админ"
             };
             var exitItem = new MenuItemViewModel
             {
@@ -69,16 +73,17 @@ namespace LabApp.WPF.ViewModels
             MenuItems.Add(patientsItem);
             MenuItems.Add(staffItem);
             MenuItems.Add(appointmentsItem);
+            MenuItems.Add(researchesItem);
             MenuItems.Add(reportsItem);
             MenuItems.Add(exitItem);
 
-            // Подписка на изменение выбранного элемента (опционально)
+            // Подписка на изменение выбранного элемента
             this.PropertyChanged += (s, e) =>
             {
                 if (e.PropertyName == nameof(SelectedMenuItem) && SelectedMenuItem?.Command != null)
                 {
                     SelectedMenuItem.Command.Execute(null);
-                    SelectedMenuItem = null; 
+                    SelectedMenuItem = null;
                 }
             };
         }
@@ -100,14 +105,20 @@ namespace LabApp.WPF.ViewModels
             CurrentPage = _serviceProvider.GetRequiredService<AppointmentsPage>();
         }
 
+        [RelayCommand]
+        private void NavigateToResearches()
+        {
+            CurrentPage = _serviceProvider.GetRequiredService<ResearchesPage>();
+        }
+
+        [RelayCommand]
         private void NavigateToReports()
         {
-            CurrentPage = new Page { Content = new TextBlock { Text = "Отчёты – в разработке" } };
+            CurrentPage = _serviceProvider.GetRequiredService<ReportsPage>();
         }
 
         private void Exit()
         {
-            
         }
     }
 }
