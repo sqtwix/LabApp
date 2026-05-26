@@ -18,7 +18,7 @@ public partial class ResearchesPageViewModel : ObservableObject
     private Research? _selectedResearch;
 
     [ObservableProperty]
-    private ObservableCollection<ResearchType> _researchTypes = new();
+    private ObservableCollection<ResearchType> _researchTypes = new(); 
 
     public ResearchesPageViewModel(IResearchService researchService)
     {

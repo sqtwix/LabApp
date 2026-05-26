@@ -11,21 +11,45 @@
 
         <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,10">
             <Button Command="{Binding LoadPatientsCommand}" Content="⟳" Width="80" Margin="0,0,10,0"/>
-            <Button Command="{Binding AddPatientCommand}" Content="+" Width="80" Margin="0,0,10,0"/>
+            <Button Command="{Binding AddPatientCommand}" Content="+" Width="80"/>
         </StackPanel>
 
         <DataGrid Grid.Row="1" 
                   ItemsSource="{Binding Patients}" 
                   SelectedItem="{Binding SelectedPatient}"
-                  AutoGenerateColumns="True"
+                  AutoGenerateColumns="False"
                   IsReadOnly="False"
                   CanUserAddRows="False"
                   RowEditEnding="DataGrid_RowEditEnding">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="ID" Binding="{Binding PatientId}" IsReadOnly="True" Width="50"/>
+                <DataGridTextColumn Header="Фамилия" Binding="{Binding LastName}" Width="100"/>
+                <DataGridTextColumn Header="Имя" Binding="{Binding FirstName}" Width="100"/>
+                <DataGridTextColumn Header="Отчество" Binding="{Binding MiddleName}" Width="100"/>
+                <DataGridTextColumn Header="Дата рождения" Binding="{Binding BirthDate}" Width="100"/>
+                <DataGridTextColumn Header="Пол" Binding="{Binding Gender}" Width="50"/>
+                <DataGridTextColumn Header="Телефон" Binding="{Binding Phone}" Width="120"/>
+                <DataGridTextColumn Header="Паспорт" Binding="{Binding Passport}" Width="120"/>
+                <DataGridTextColumn Header="Адрес" Binding="{Binding Address}" Width="150"/>
+                <DataGridTemplateColumn Header="Город" Width="120">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding City.Name}"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                    <DataGridTemplateColumn.CellEditingTemplate>
+                        <DataTemplate>
+                            <ComboBox ItemsSource="{Binding DataContext.Cities, RelativeSource={RelativeSource AncestorType=Page}}"
+                                      DisplayMemberPath="Name"
+                                      SelectedValuePath="CityId"
+                                      SelectedValue="{Binding CityId, UpdateSourceTrigger=PropertyChanged}"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellEditingTemplate>
+                </DataGridTemplateColumn>
+            </DataGrid.Columns>
             <DataGrid.ContextMenu>
                 <ContextMenu>
-                    <MenuItem Header="Удалить" 
-                              Command="{Binding DeletePatientCommand}" 
-                              CommandParameter="{Binding SelectedItem, RelativeSource={RelativeSource AncestorType=DataGrid}}"/>
+                    <MenuItem Header="Удалить" Command="{Binding DeletePatientCommand}" CommandParameter="{Binding SelectedItem, RelativeSource={RelativeSource AncestorType=DataGrid}}"/>
                 </ContextMenu>
             </DataGrid.ContextMenu>
         </DataGrid>

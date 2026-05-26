@@ -11,22 +11,82 @@
 
         <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,10">
             <Button Command="{Binding LoadServicesCommand}" Content="⟳" Width="80" Margin="0,0,10,0"/>
-            <Button Command="{Binding AddServiceCommand}" Content="+" Width="80"
-                    IsEnabled="{Binding CanEdit}"/>
+            <Button Command="{Binding AddServiceCommand}" Content="+" Width="80"/>
         </StackPanel>
 
         <DataGrid Grid.Row="1" 
                   ItemsSource="{Binding Services}" 
                   SelectedItem="{Binding SelectedService}"
-                  AutoGenerateColumns="True"
-                  IsReadOnly="{Binding IsReadOnly}"
+                  AutoGenerateColumns="False"
+                  IsReadOnly="False"
                   CanUserAddRows="False"
                   RowEditEnding="DataGrid_RowEditEnding">
+            <DataGrid.Columns>
+                <DataGridTemplateColumn Header="Сотрудник" Width="150">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding Staff.LastName}"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                    <DataGridTemplateColumn.CellEditingTemplate>
+                        <DataTemplate>
+                            <ComboBox ItemsSource="{Binding DataContext.Staffs, RelativeSource={RelativeSource AncestorType=Page}}"
+                                      DisplayMemberPath="LastName"
+                                      SelectedValuePath="StaffId"
+                                      SelectedValue="{Binding StaffId, UpdateSourceTrigger=PropertyChanged}"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellEditingTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTemplateColumn Header="Исследование" Width="150">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding Research.Name}"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                    <DataGridTemplateColumn.CellEditingTemplate>
+                        <DataTemplate>
+                            <ComboBox ItemsSource="{Binding DataContext.Researches, RelativeSource={RelativeSource AncestorType=Page}}"
+                                      DisplayMemberPath="Name"
+                                      SelectedValuePath="ResearchId"
+                                      SelectedValue="{Binding ResearchId, UpdateSourceTrigger=PropertyChanged}"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellEditingTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTextColumn Header="Дата услуги" Binding="{Binding ServiceDate}" Width="100"/>
+                <DataGridTemplateColumn Header="Тип оплаты" Width="120">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding PaymentType.Name}"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                    <DataGridTemplateColumn.CellEditingTemplate>
+                        <DataTemplate>
+                            <ComboBox ItemsSource="{Binding DataContext.PaymentTypes, RelativeSource={RelativeSource AncestorType=Page}}"
+                                      DisplayMemberPath="Name"
+                                      SelectedValuePath="PaymentTypeId"
+                                      SelectedValue="{Binding PaymentTypeId, UpdateSourceTrigger=PropertyChanged}"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellEditingTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTemplateColumn Header="Отделение" Width="120">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding Department.Name}"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                    <DataGridTemplateColumn.CellEditingTemplate>
+                        <DataTemplate>
+                            <ComboBox ItemsSource="{Binding DataContext.Departments, RelativeSource={RelativeSource AncestorType=Page}}"
+                                      DisplayMemberPath="Name"
+                                      SelectedValuePath="DepartmentId"
+                                      SelectedValue="{Binding DepartmentId, UpdateSourceTrigger=PropertyChanged}"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellEditingTemplate>
+                </DataGridTemplateColumn>
+            </DataGrid.Columns>
             <DataGrid.ContextMenu>
                 <ContextMenu>
-                    <MenuItem Header="Удалить" Command="{Binding DeleteServiceCommand}" 
-                              CommandParameter="{Binding SelectedItem, RelativeSource={RelativeSource AncestorType=DataGrid}}"
-                              IsEnabled="{Binding CanEdit}"/>
+                    <MenuItem Header="Удалить" Command="{Binding DeleteServiceCommand}" CommandParameter="{Binding SelectedItem, RelativeSource={RelativeSource AncestorType=DataGrid}}"/>
                 </ContextMenu>
             </DataGrid.ContextMenu>
         </DataGrid>

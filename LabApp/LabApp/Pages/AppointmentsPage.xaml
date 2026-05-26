@@ -11,17 +11,13 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <!-- Кнопки управления -->
         <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,10">
             <Button Command="{Binding LoadDataCommand}" Content="⟳" Width="80" Margin="0,0,10,0"/>
             <Button Command="{Binding AddAppointmentCommand}" Content="+" Width="80"/>
         </StackPanel>
 
-        <!-- DataGrid с записями -->
         <DataGrid Grid.Row="1" 
                   ItemsSource="{Binding Appointments}" 
                   SelectedItem="{Binding SelectedAppointment}"
@@ -86,8 +82,6 @@
                         </DataTemplate>
                     </DataGridTemplateColumn.CellEditingTemplate>
                 </DataGridTemplateColumn>
-
-                <!-- Статус – редактируемый ComboBox, при изменении вызывает UpdateStatusCommand -->
                 <DataGridTemplateColumn Header="Статус" Width="140">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
@@ -110,17 +104,8 @@
             </DataGrid.ContextMenu>
         </DataGrid>
 
-        <!-- Статус‑бар с общим количеством -->
         <StatusBar Grid.Row="2">
             <TextBlock Text="{Binding Appointments.Count, StringFormat='Всего записей: {0}'}"/>
         </StatusBar>
-
-        <!-- Результаты анализов для выбранной записи -->
-        <GroupBox Grid.Row="3" Header="Результаты анализов" Margin="0,10,0,0">
-            <StackPanel>
-                <Button Command="{Binding LoadResultsForAppointmentCommand}" Content="Загрузить результаты" Width="150" Margin="0,5"/>
-                <DataGrid ItemsSource="{Binding SelectedAppointmentResults}" AutoGenerateColumns="True" MaxHeight="200"/>
-            </StackPanel>
-        </GroupBox>
     </Grid>
 </Page>

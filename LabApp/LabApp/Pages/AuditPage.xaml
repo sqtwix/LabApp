@@ -10,7 +10,6 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <!-- Аудит пациентов -->
         <GroupBox Grid.Row="0" Header="Аудит изменений пациентов" Margin="0,0,0,10">
             <StackPanel>
                 <StackPanel Orientation="Horizontal" Margin="0,5">
@@ -22,11 +21,10 @@
                     <DatePicker SelectedDate="{Binding FilterTo}" Width="100" Margin="5,0"/>
                     <Button Command="{Binding LoadPatientsAuditCommand}" Content="Загрузить" Margin="10,0"/>
                 </StackPanel>
-                <DataGrid ItemsSource="{Binding PatientsAudits}" AutoGenerateColumns="True" MaxHeight="300"/>
+                <DataGrid ItemsSource="{Binding PatientsAudits}" AutoGenerateColumns="True" MaxHeight="250"/>
             </StackPanel>
         </GroupBox>
 
-        <!-- Аудит результатов -->
         <GroupBox Grid.Row="2" Header="Аудит изменений результатов" Margin="0,10,0,0">
             <StackPanel>
                 <StackPanel Orientation="Horizontal" Margin="0,5">
@@ -36,7 +34,7 @@
                     <TextBox Text="{Binding FilterResearchId, UpdateSourceTrigger=PropertyChanged}" Width="80" Margin="5,0"/>
                     <Button Command="{Binding LoadResultsAuditCommand}" Content="Загрузить" Margin="10,0"/>
                 </StackPanel>
-                <DataGrid ItemsSource="{Binding ResultsAudits}" AutoGenerateColumns="True" MaxHeight="300"/>
+                <DataGrid ItemsSource="{Binding ResultsAudits}" AutoGenerateColumns="True" MaxHeight="250"/>
             </StackPanel>
         </GroupBox>
     </Grid>

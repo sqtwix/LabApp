@@ -11,26 +11,70 @@
 
         <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,10">
             <Button Command="{Binding LoadDataCommand}" Content="⟳" Width="80" Margin="0,0,10,0"/>
-            <Button Command="{Binding AddStaffCommand}" Content="+" Width="80" Margin="0,0,10,0"/>
+            <Button Command="{Binding AddStaffCommand}" Content="+" Width="80"
+                    IsEnabled="{Binding CanEdit}"/>
         </StackPanel>
 
         <DataGrid Grid.Row="1" 
-                  ItemsSource="{Binding StaffList}" 
+                  ItemsSource="{Binding Staffs}" 
                   SelectedItem="{Binding SelectedStaff}"
-                  AutoGenerateColumns="True"
-                  IsReadOnly="False"
+                  AutoGenerateColumns="False"
+                  IsReadOnly="{Binding IsReadOnly}"
                   CanUserAddRows="False"
                   RowEditEnding="DataGrid_RowEditEnding">
-            <!-- Если нужны комбобоксы для PositionId и CityId, можно задать столбцы вручную -->
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="ID" Binding="{Binding StaffId}" IsReadOnly="True" Width="50"/>
+                <DataGridTextColumn Header="Фамилия" Binding="{Binding LastName}" Width="100"/>
+                <DataGridTextColumn Header="Имя" Binding="{Binding FirstName}" Width="100"/>
+                <DataGridTextColumn Header="Отчество" Binding="{Binding MiddleName}" Width="100"/>
+                <DataGridTextColumn Header="Телефон" Binding="{Binding Phone}" Width="120"/>
+                <DataGridTextColumn Header="Паспорт" Binding="{Binding Passport}" Width="120"/>
+                <DataGridTextColumn Header="Адрес" Binding="{Binding Address}" Width="150"/>
+                <DataGridTemplateColumn Header="Должность" Width="150">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding Position.Name}"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                    <DataGridTemplateColumn.CellEditingTemplate>
+                        <DataTemplate>
+                            <ComboBox ItemsSource="{Binding DataContext.Positions, RelativeSource={RelativeSource AncestorType=Page}}"
+                                      DisplayMemberPath="Name"
+                                      SelectedValuePath="PositionId"
+                                      SelectedValue="{Binding PositionId, UpdateSourceTrigger=PropertyChanged}"
+                                      IsEditable="False"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellEditingTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTemplateColumn Header="Город" Width="150">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding City.Name}"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                    <DataGridTemplateColumn.CellEditingTemplate>
+                        <DataTemplate>
+                            <ComboBox ItemsSource="{Binding DataContext.Cities, RelativeSource={RelativeSource AncestorType=Page}}"
+                                      DisplayMemberPath="Name"
+                                      SelectedValuePath="CityId"
+                                      SelectedValue="{Binding CityId, UpdateSourceTrigger=PropertyChanged}"
+                                      IsEditable="False"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellEditingTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTextColumn Header="Образование" Binding="{Binding Education}" Width="100"/>
+            </DataGrid.Columns>
             <DataGrid.ContextMenu>
                 <ContextMenu>
-                    <MenuItem Header="Удалить" Command="{Binding DeleteStaffCommand}" CommandParameter="{Binding SelectedItem, RelativeSource={RelativeSource AncestorType=DataGrid}}"/>
+                    <MenuItem Header="Удалить" Command="{Binding DeleteStaffCommand}" 
+                              CommandParameter="{Binding SelectedItem, RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                              IsEnabled="{Binding CanEdit}"/>
                 </ContextMenu>
             </DataGrid.ContextMenu>
         </DataGrid>
 
         <StatusBar Grid.Row="2">
-            <TextBlock Text="{Binding StaffList.Count, StringFormat='Всего сотрудников: {0}'}"/>
+            <TextBlock Text="{Binding Staffs.Count, StringFormat='Всего сотрудников: {0}'}"/>
         </StatusBar>
     </Grid>
 </Page>

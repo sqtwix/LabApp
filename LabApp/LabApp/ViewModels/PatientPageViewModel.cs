@@ -14,9 +14,15 @@ public partial class PatientPageViewModel : ObservableObject
     [ObservableProperty]
     private ObservableCollection<Patient> _patients = new();
 
-    public PatientPageViewModel(IPatientService patientService)
+    [ObservableProperty]
+    private ObservableCollection<City> _cities = new();
+
+    private readonly IStaffService _staffService;
+
+    public PatientPageViewModel(IPatientService patientService, IStaffService staffService)
     {
         _patientService = patientService;
+        _staffService = staffService;
         LoadPatientsCommand.Execute(null);
     }
 
@@ -27,6 +33,10 @@ public partial class PatientPageViewModel : ObservableObject
         Patients.Clear();
         foreach (var p in list)
             Patients.Add(p);
+
+        var citiesList = await _staffService.GetAllCitiesAsync();
+        Cities.Clear();
+        foreach (var c in citiesList) Cities.Add(c);
     }
 
     // Сохранение одной записи (после редактирования)

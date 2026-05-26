@@ -10,17 +10,38 @@
         </Grid.RowDefinitions>
 
         <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,10">
-            <Button Command="{Binding LoadDataCommand}" Content="⟳" Width="80" Margin="0,0,10,0"/>
+            <Button Command="{Binding LoadEquipmentCommand}" Content="⟳" Width="80" Margin="0,0,10,0"/>
             <Button Command="{Binding AddEquipmentCommand}" Content="+" Width="80"/>
         </StackPanel>
 
         <DataGrid Grid.Row="1" 
                   ItemsSource="{Binding EquipmentList}" 
                   SelectedItem="{Binding SelectedEquipment}"
-                  AutoGenerateColumns="True"
+                  AutoGenerateColumns="False"
                   IsReadOnly="False"
                   CanUserAddRows="False"
                   RowEditEnding="DataGrid_RowEditEnding">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="ID" Binding="{Binding EquipmentId}" IsReadOnly="True" Width="50"/>
+                <DataGridTextColumn Header="Название" Binding="{Binding Name}" Width="200"/>
+                <DataGridTemplateColumn Header="Кабинет" Width="100">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding Room.RoomNumber}"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                    <DataGridTemplateColumn.CellEditingTemplate>
+                        <DataTemplate>
+                            <ComboBox ItemsSource="{Binding DataContext.Rooms, RelativeSource={RelativeSource AncestorType=Page}}"
+                                      DisplayMemberPath="RoomNumber"
+                                      SelectedValuePath="RoomId"
+                                      SelectedValue="{Binding RoomId, UpdateSourceTrigger=PropertyChanged}"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellEditingTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTextColumn Header="Дата ввода" Binding="{Binding ExplotationDate}" Width="120"/>
+                <DataGridTextColumn Header="Срок службы" Binding="{Binding ServiceLife}" Width="100"/>
+            </DataGrid.Columns>
             <DataGrid.ContextMenu>
                 <ContextMenu>
                     <MenuItem Header="Удалить" Command="{Binding DeleteEquipmentCommand}" CommandParameter="{Binding SelectedItem, RelativeSource={RelativeSource AncestorType=DataGrid}}"/>

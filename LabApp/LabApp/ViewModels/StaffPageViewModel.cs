@@ -2,6 +2,7 @@
 using CommunityToolkit.Mvvm.Input;
 using LabApp.Application.Interfaces;
 using LabApp.Domain.Entities;
+using LabApp.WPF.Utils;
 using System.Collections.ObjectModel;
 using System.Windows;
 
@@ -12,17 +13,20 @@ public partial class StaffPageViewModel : ObservableObject
     private readonly IStaffService _staffService;
 
     [ObservableProperty]
-    private ObservableCollection<Staff> _staffList = new();
+    private ObservableCollection<Staff> _staffs = new();
 
     [ObservableProperty]
     private Staff? _selectedStaff;
 
-    // Справочники для выпадающих списков (если нужно)
+    [ObservableProperty]
+    private ObservableCollection<City> _cities = new();
+
     [ObservableProperty]
     private ObservableCollection<Position> _positions = new();
 
-    [ObservableProperty]
-    private ObservableCollection<City> _cities = new();
+    public bool CanEdit => !IsReadOnly;
+
+    public bool IsReadOnly => CurrentUser.Role == "лаборант";
 
     public StaffPageViewModel(IStaffService staffService)
     {
@@ -33,38 +37,26 @@ public partial class StaffPageViewModel : ObservableObject
     [RelayCommand]
     private async Task LoadData()
     {
-        // Загружаем сотрудников
         var staff = await _staffService.GetAllStaffAsync();
-        StaffList.Clear();
-        foreach (var s in staff)
-            StaffList.Add(s);
+        Staffs.Clear();
+        foreach (var s in staff) Staffs.Add(s);
 
-        // Загружаем справочники (если есть методы)
-        if (_staffService.GetAllPositionsAsync != null)
-        {
-            var positions = await _staffService.GetAllPositionsAsync();
-            Positions.Clear();
-            foreach (var p in positions)
-                Positions.Add(p);
-        }
-        if (_staffService.GetAllCitiesAsync != null)
-        {
-            var cities = await _staffService.GetAllCitiesAsync();
-            Cities.Clear();
-            foreach (var c in cities)
-                Cities.Add(c);
-        }
+        var positions = await _staffService.GetAllPositionsAsync();
+        Positions.Clear();
+        foreach (var p in positions) Positions.Add(p);
+
+        var cities = await _staffService.GetAllCitiesAsync();
+        Cities.Clear();
+        foreach (var c in cities) Cities.Add(c);
     }
 
-    // Сохранение одной записи (после редактирования)
     public async Task SaveStaffAsync(Staff staff)
     {
-        if (staff.StaffId <= 0) // новая запись
+        if (staff.StaffId <= 0)
         {
             var created = await _staffService.CreateStaffAsync(staff);
-            var index = StaffList.IndexOf(staff);
-            if (index >= 0)
-                StaffList[index] = created;
+            var index = Staffs.IndexOf(staff);
+            if (index >= 0) Staffs[index] = created;
         }
         else
         {
@@ -80,7 +72,7 @@ public partial class StaffPageViewModel : ObservableObject
                             "Подтверждение", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
         {
             await _staffService.DeleteStaffAsync(staff.StaffId);
-            StaffList.Remove(staff);
+            Staffs.Remove(staff);
         }
     }
 
@@ -93,7 +85,7 @@ public partial class StaffPageViewModel : ObservableObject
             LastName = "Новый",
             FirstName = "Сотрудник"
         };
-        StaffList.Add(newStaff);
+        Staffs.Add(newStaff);
         SelectedStaff = newStaff;
     }
 }

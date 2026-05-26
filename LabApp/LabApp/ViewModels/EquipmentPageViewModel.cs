@@ -17,6 +17,9 @@ public partial class EquipmentPageViewModel : ObservableObject
     [ObservableProperty]
     private Equipment? _selectedEquipment;
 
+    [ObservableProperty]
+    private ObservableCollection<Room> _rooms = new();
+
     public EquipmentPageViewModel(IEquipmentService equipmentService)
     {
         _equipmentService = equipmentService;
