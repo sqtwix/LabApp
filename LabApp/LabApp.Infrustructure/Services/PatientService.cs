@@ -1,6 +1,7 @@
 ﻿using LabApp.Application.Dtos;
 using LabApp.Application.Interfaces;
 using LabApp.Domain.Entities;
+using LabApp.Infrastructure.Helpers;
 using Microsoft.EntityFrameworkCore;
 
 namespace LabApp.Infrustructure.Services;
@@ -16,29 +17,55 @@ public class PatientService : IPatientService
 
     public async Task<Patient> GetPatientByIdAsync(int id)
     {
-        return await _context.Patients
-            .Include(p => p.City)
-            .FirstOrDefaultAsync(p => p.PatientId == id);
+        var patient = await _context.Patients.FindAsync(id);
+        if (patient != null)
+        {
+            patient.Address = EncryptionHelper.Decrypt(patient.Address);
+            patient.Passport = EncryptionHelper.Decrypt(patient.Passport);
+        }
+        return patient;
     }
 
     public async Task<IEnumerable<Patient>> GetAllPatientsAsync()
     {
-        return await _context.Patients
-            .Include(p => p.City)
-            .ToListAsync();
+        var patients = await _context.Patients.ToListAsync();
+        foreach (var p in patients)
+        {
+            p.Address = EncryptionHelper.Decrypt(p.Address);
+            p.Passport = EncryptionHelper.Decrypt(p.Passport);
+        }
+        return patients;
     }
 
     public async Task<Patient> CreatePatientAsync(Patient patient)
     {
+        patient.Passport = EncryptionHelper.Encrypt(patient.Passport);
+        patient.Address = EncryptionHelper.Encrypt(patient.Address);
         _context.Patients.Add(patient);
         await _context.SaveChangesAsync();
+        patient.Passport = EncryptionHelper.Decrypt(patient.Passport);
+        patient.Address = EncryptionHelper.Decrypt(patient.Address);
         return patient;
     }
 
     public async Task<Patient> UpdatePatientAsync(Patient patient)
     {
-        _context.Entry(patient).State = EntityState.Modified;
+        var existing = await _context.Patients.FindAsync(patient.PatientId);
+        if (existing == null) return null;
+
+        existing.LastName = patient.LastName;
+        existing.FirstName = patient.FirstName;
+        existing.MiddleName = patient.MiddleName;
+        existing.BirthDate = patient.BirthDate;
+        existing.Gender = patient.Gender;
+        existing.Phone = patient.Phone;
+        existing.Address = EncryptionHelper.Encrypt(patient.Address);
+        existing.Passport = EncryptionHelper.Encrypt(patient.Passport);
+        existing.CityId = patient.CityId;
+
         await _context.SaveChangesAsync();
+        patient.Address = EncryptionHelper.Decrypt(existing.Address);
+        patient.Passport = EncryptionHelper.Decrypt(existing.Passport);
         return patient;
     }
 

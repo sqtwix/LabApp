@@ -1,4 +1,5 @@
 ﻿using LabApp.Application.Interfaces;
+using LabApp.Infrastructure.Helpers;
 using LabApp.Infrastructure.Services;
 using LabApp.Infrustructure;
 using LabApp.Infrustructure.Services;
@@ -29,6 +30,15 @@ public partial class App : System.Windows.Application
         _configuration = builder.Build();
 
         var services = new ServiceCollection();
+
+        var configuration = new ConfigurationBuilder()
+    .SetBasePath(Directory.GetCurrentDirectory())
+    .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+    .Build();
+
+        var key = configuration["Encryption:Key"];
+        var iv = configuration["Encryption:IV"];
+        EncryptionHelper.Initialize(key, iv);
 
         RegistrateDbContext(services);
 

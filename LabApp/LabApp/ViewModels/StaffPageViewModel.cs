@@ -24,8 +24,15 @@ public partial class StaffPageViewModel : ObservableObject
     [ObservableProperty]
     private ObservableCollection<Position> _positions = new();
 
-    public bool CanEdit => !IsReadOnly;
+    [ObservableProperty]
+    private ObservableCollection<string> _roles = new()
+    {
+        "administrator_role",
+        "lab_spec_role",
+        "registrar_role"
+    };
 
+    public bool CanEdit => !IsReadOnly;
     public bool IsReadOnly => CurrentUser.Role == "лаборант";
 
     public StaffPageViewModel(IStaffService staffService)
@@ -52,15 +59,41 @@ public partial class StaffPageViewModel : ObservableObject
 
     public async Task SaveStaffAsync(Staff staff)
     {
-        if (staff.StaffId <= 0)
+        try
         {
-            var created = await _staffService.CreateStaffAsync(staff);
-            var index = Staffs.IndexOf(staff);
-            if (index >= 0) Staffs[index] = created;
+            if (staff.StaffId <= 0)
+            {
+                // Новая запись
+                if (string.IsNullOrWhiteSpace(staff.Login))
+                    staff.Login = "temp_" + Guid.NewGuid().ToString("N").Substring(0, 8);
+                if (string.IsNullOrWhiteSpace(staff.RoleName))
+                    staff.RoleName = "registrar_role";
+                if (staff.Passport == null) staff.Passport = "";
+                if (staff.Address == null) staff.Address = "";
+                staff.PasswordHash = "temp123";
+
+                var created = await _staffService.CreateStaffAsync(staff);
+                // Перезагружаем из БД, чтобы получить полные данные (включая сгенерированный ID и хэш)
+                var fresh = await _staffService.GetStaffByIdAsync(created.StaffId);
+                var index = Staffs.IndexOf(staff);
+                if (index >= 0)
+                    Staffs[index] = fresh;
+                else
+                    Staffs.Add(fresh);
+            }
+            else
+            {
+                // Обновление существующей записи
+                await _staffService.UpdateStaffAsync(staff);
+                // Обновляем локальный объект (данные уже обновлены в staff)
+                var index = Staffs.IndexOf(staff);
+                if (index >= 0)
+                    Staffs[index] = staff;
+            }
         }
-        else
+        catch (Exception ex)
         {
-            await _staffService.UpdateStaffAsync(staff);
+            MessageBox.Show($"Ошибка сохранения: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
         }
     }
 
@@ -68,6 +101,11 @@ public partial class StaffPageViewModel : ObservableObject
     private async Task DeleteStaff(Staff staff)
     {
         if (staff == null) return;
+        if (staff.StaffId <= 0)
+        {
+            Staffs.Remove(staff);
+            return;
+        }
         if (MessageBox.Show($"Удалить сотрудника {staff.LastName} {staff.FirstName}?",
                             "Подтверждение", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
         {
@@ -81,9 +119,14 @@ public partial class StaffPageViewModel : ObservableObject
     {
         var newStaff = new Staff
         {
-            StaffId = -1,
             LastName = "Новый",
-            FirstName = "Сотрудник"
+            FirstName = "Сотрудник",
+            Login = "temp_" + Guid.NewGuid().ToString("N").Substring(0, 8),
+            RoleName = "registrar_role",
+            Passport = "",
+            Address = "",
+            Phone = "",
+            Education = ""
         };
         Staffs.Add(newStaff);
         SelectedStaff = newStaff;

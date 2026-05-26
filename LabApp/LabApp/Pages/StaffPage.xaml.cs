@@ -14,14 +14,29 @@ public partial class StaffPage : Page
         _viewModel = viewModel;
     }
 
-    private async void DataGrid_RowEditEnding(object sender, DataGridRowEditEndingEventArgs e)
+    private bool _isSaving = false;
+
+    private void DataGrid_RowEditEnding(object sender, DataGridRowEditEndingEventArgs e)
     {
         if (e.EditAction == DataGridEditAction.Commit)
         {
             var staff = e.Row.Item as Domain.Entities.Staff;
             if (staff != null)
             {
-                await _viewModel.SaveStaffAsync(staff);
+                if (_isSaving) return;
+
+                Dispatcher.InvokeAsync(async () =>
+                {
+                    _isSaving = true;
+                    try
+                    {
+                        await _viewModel.SaveStaffAsync(staff);
+                    }
+                    finally
+                    {
+                        _isSaving = false;
+                    }
+                }, System.Windows.Threading.DispatcherPriority.Background);
             }
         }
     }

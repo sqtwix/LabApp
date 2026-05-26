@@ -1,5 +1,6 @@
 ﻿using LabApp.Application.Interfaces;
 using LabApp.Domain.Entities;
+using LabApp.Infrastructure.Helpers;
 using LabApp.Infrustructure;
 using Microsoft.EntityFrameworkCore;
 
@@ -16,9 +17,10 @@ public class ResultService : IResultService
 
     public async Task<IEnumerable<Result>> GetAllResultsAsync()
     {
-        return await _context.Results
-            .Include(r => r.CarrierType)
-            .ToListAsync();
+        var results = await _context.Results.ToListAsync();
+        foreach (var r in results)
+            r.Description = EncryptionHelper.Decrypt(r.Description);
+        return results;
     }
 
     public async Task<Result?> GetResultByIdAsync(int referralId, int researchId)
@@ -30,15 +32,25 @@ public class ResultService : IResultService
 
     public async Task<Result> CreateResultAsync(Result result)
     {
+        result.Description = EncryptionHelper.Encrypt(result.Description);
         _context.Results.Add(result);
         await _context.SaveChangesAsync();
+        result.Description = EncryptionHelper.Decrypt(result.Description);
         return result;
     }
 
     public async Task<Result> UpdateResultAsync(Result result)
     {
-        _context.Entry(result).State = EntityState.Modified;
+        var existing = await _context.Results
+            .FirstOrDefaultAsync(r => r.ReferralId == result.ReferralId && r.ResearchId == result.ResearchId);
+        if (existing == null) return null;
+
+        existing.Description = EncryptionHelper.Encrypt(result.Description);
+        existing.CompletionDate = result.CompletionDate;
+        existing.CarrierTypeId = result.CarrierTypeId;
+
         await _context.SaveChangesAsync();
+        result.Description = EncryptionHelper.Decrypt(existing.Description);
         return result;
     }
 
