@@ -1,0 +1,38 @@
+﻿<Page x:Class="LabApp.WPF.Pages.ResultsPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      Title="Результаты анализов">
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,10">
+            <Button Command="{Binding LoadResultsCommand}" Content="⟳" Width="80" Margin="0,0,10,0"/>
+            <Button Command="{Binding AddResultCommand}" Content="+" Width="80"
+                    IsEnabled="{Binding CanEdit}"/>
+        </StackPanel>
+
+        <DataGrid Grid.Row="1" 
+                  ItemsSource="{Binding Results}" 
+                  SelectedItem="{Binding SelectedResult}"
+                  AutoGenerateColumns="True"
+                  IsReadOnly="{Binding IsReadOnly}"
+                  CanUserAddRows="False"
+                  RowEditEnding="DataGrid_RowEditEnding">
+            <DataGrid.ContextMenu>
+                <ContextMenu>
+                    <MenuItem Header="Удалить" Command="{Binding DeleteResultCommand}" 
+                              CommandParameter="{Binding SelectedItem, RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                              IsEnabled="{Binding CanEdit}"/>
+                </ContextMenu>
+            </DataGrid.ContextMenu>
+        </DataGrid>
+
+        <StatusBar Grid.Row="2">
+            <TextBlock Text="{Binding Results.Count, StringFormat='Всего результатов: {0}'}"/>
+        </StatusBar>
+    </Grid>
+</Page>

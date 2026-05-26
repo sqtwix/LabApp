@@ -11,6 +11,8 @@ namespace LabApp.WPF.ViewModels;
 public partial class AppointmentsPageViewModel : ObservableObject
 {
     private readonly IAppointmentService _appointmentService;
+    private readonly IResearchService _researchService;
+
 
     [ObservableProperty]
     private ObservableCollection<Appointment> _appointments = new();
@@ -26,9 +28,10 @@ public partial class AppointmentsPageViewModel : ObservableObject
 
     public List<string> Statuses { get; } = new() { "Запланирована", "Завершена", "Не пришёл" };
 
-    public AppointmentsPageViewModel(IAppointmentService appointmentService)
+    public AppointmentsPageViewModel(IAppointmentService appointmentService, IResearchService researchService)
     {
         _appointmentService = appointmentService;
+        _researchService = researchService;
         LoadDataCommand.Execute(null);
     }
 
@@ -99,5 +102,33 @@ public partial class AppointmentsPageViewModel : ObservableObject
         };
         Appointments.Add(newAppointment);
         SelectedAppointment = newAppointment;
+    }
+
+
+    [ObservableProperty]
+    private ObservableCollection<Result> _selectedAppointmentResults = new();
+
+    [RelayCommand]
+    private async Task LoadResultsForAppointment()
+    {
+        if (SelectedAppointment == null) return;
+        var results = await _researchService.GetResultByReferralAndResearchAsync(SelectedAppointment.AppointmentId, 0);
+        // Загрузка всех результатов для данного назначения (если их несколько)
+        // Предполагаем, что в БД один результат на назначение, либо используем список
+        SelectedAppointmentResults.Clear();
+        if (results != null)
+            SelectedAppointmentResults.Add(results);
+    }
+
+    public async Task UpdateStatusAsync(Appointment appointment, bool isMissed)
+    {
+        if (appointment == null) return;
+        var (message, updated) = await _appointmentService.UpdateAppointmentStatusAsync(appointment.AppointmentId, isMissed);
+        MessageBox.Show(message);
+        if (updated != null)
+        {
+            var index = Appointments.IndexOf(appointment);
+            Appointments[index] = updated;
+        }
     }
 }

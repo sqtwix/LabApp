@@ -5,6 +5,7 @@ using LabApp.WPF.Utils;
 using Microsoft.Extensions.DependencyInjection;
 using System.Collections.ObjectModel;
 using System.Windows.Controls;
+using LabApp.WPF.Utils;
 
 namespace LabApp.WPF.ViewModels
 {
@@ -69,20 +70,34 @@ namespace LabApp.WPF.ViewModels
                 Command = new RelayCommand(NavigateToAudit),
                 IsVisible = _userRole == "админ"
             };
-            MenuItems.Add(auditItem);
+            var equipmentItem = new MenuItemViewModel
+            {
+                Header = "Оборудование",
+                Command = new RelayCommand(NavigateToEquipment),
+                IsVisible = _userRole != "регистратор" // лаборант и админ видят
+            };
             var exitItem = new MenuItemViewModel
             {
                 Header = "Выход",
                 Command = new RelayCommand(Exit),
                 IsVisible = true
             };
+            var resultsItem = new MenuItemViewModel
+            {
+                Header = "Результаты",
+                Command = new RelayCommand(NavigateToResults),
+                IsVisible = true // или по роли, если нужно
+            };
 
+            MenuItems.Add(resultsItem);
             MenuItems.Add(patientsItem);
             MenuItems.Add(staffItem);
             MenuItems.Add(appointmentsItem);
             MenuItems.Add(researchesItem);
             MenuItems.Add(reportsItem);
             MenuItems.Add(exitItem);
+            MenuItems.Add(equipmentItem);
+            MenuItems.Add(auditItem);
 
             // Подписка на изменение выбранного элемента
             this.PropertyChanged += (s, e) =>
@@ -128,6 +143,35 @@ namespace LabApp.WPF.ViewModels
         private void NavigateToAudit()
         {
             CurrentPage = _serviceProvider.GetRequiredService<AuditPage>();
+        }
+
+        [RelayCommand]
+        private void NavigateToEquipment()
+        {
+            CurrentPage = _serviceProvider.GetRequiredService<EquipmentPage>();
+        }
+
+        [RelayCommand]
+        private void NavigateToResults()
+        {
+            CurrentPage = _serviceProvider.GetRequiredService<ResultsPage>();
+        }
+
+        [RelayCommand]
+        private void SwitchUser()
+        {
+            // Очищаем данные текущего пользователя
+            CurrentUser.StaffId = 0;
+            CurrentUser.Role = string.Empty;
+            CurrentUser.FullName = string.Empty;
+
+            // Закрываем главное окно
+            var mainWindow = System.Windows.Application.Current.Windows.OfType<MainWindow>().FirstOrDefault();
+            mainWindow?.Close();
+
+            // Открываем окно логина
+            var loginWindow = _serviceProvider.GetRequiredService<LoginWindow>();
+            loginWindow.Show();
         }
 
         private void Exit()

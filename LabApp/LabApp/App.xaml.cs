@@ -62,6 +62,7 @@ public partial class App : System.Windows.Application
         services.AddTransient<IEquipmentService, EquipmentService>();
         services.AddTransient<IReportingService, ReportingService>();
         services.AddTransient<IAdminService, AdminService>();
+        services.AddTransient<IResultService, ResultService>();
     }
 
     // ViewModel Registration for MVVM
@@ -83,6 +84,10 @@ public partial class App : System.Windows.Application
         services.AddTransient<ReportsPage>();
         services.AddTransient<AuditPageViewModel>();
         services.AddTransient<AuditPage>();
+        services.AddTransient<EquipmentPageViewModel>();
+        services.AddTransient<EquipmentPage>();
+        services.AddTransient<ResultsPageViewModel>();
+        services.AddTransient<ResultsPage>();
     }
 }
 

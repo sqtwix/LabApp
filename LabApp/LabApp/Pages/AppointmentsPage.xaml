@@ -11,20 +11,25 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
+        <!-- Кнопки управления -->
         <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,10">
             <Button Command="{Binding LoadDataCommand}" Content="⟳" Width="80" Margin="0,0,10,0"/>
             <Button Command="{Binding AddAppointmentCommand}" Content="+" Width="80"/>
         </StackPanel>
 
+        <!-- DataGrid с записями -->
         <DataGrid Grid.Row="1" 
                   ItemsSource="{Binding Appointments}" 
                   SelectedItem="{Binding SelectedAppointment}"
                   AutoGenerateColumns="False"
                   IsReadOnly="False"
                   CanUserAddRows="False"
-                  RowEditEnding="DataGrid_RowEditEnding">
+                  RowEditEnding="DataGrid_RowEditEnding"
+                  SelectionChanged="DataGrid_SelectionChanged">
             <DataGrid.Columns>
                 <DataGridTextColumn Header="ID" Binding="{Binding AppointmentId}" IsReadOnly="True" Width="50"/>
                 <DataGridTemplateColumn Header="Пациент" Width="150">
@@ -81,7 +86,9 @@
                         </DataTemplate>
                     </DataGridTemplateColumn.CellEditingTemplate>
                 </DataGridTemplateColumn>
-                <DataGridTemplateColumn Header="Статус" Width="120">
+
+                <!-- Статус – редактируемый ComboBox, при изменении вызывает UpdateStatusCommand -->
+                <DataGridTemplateColumn Header="Статус" Width="140">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
                             <TextBlock Text="{Binding Status}"/>
@@ -90,7 +97,8 @@
                     <DataGridTemplateColumn.CellEditingTemplate>
                         <DataTemplate>
                             <ComboBox ItemsSource="{Binding DataContext.Statuses, RelativeSource={RelativeSource AncestorType=Page}}"
-                                      SelectedItem="{Binding Status, UpdateSourceTrigger=PropertyChanged}"/>
+                                      SelectedItem="{Binding Status, UpdateSourceTrigger=PropertyChanged}"
+                                      SelectionChanged="StatusComboBox_SelectionChanged"/>
                         </DataTemplate>
                     </DataGridTemplateColumn.CellEditingTemplate>
                 </DataGridTemplateColumn>
@@ -102,8 +110,17 @@
             </DataGrid.ContextMenu>
         </DataGrid>
 
+        <!-- Статус‑бар с общим количеством -->
         <StatusBar Grid.Row="2">
             <TextBlock Text="{Binding Appointments.Count, StringFormat='Всего записей: {0}'}"/>
         </StatusBar>
+
+        <!-- Результаты анализов для выбранной записи -->
+        <GroupBox Grid.Row="3" Header="Результаты анализов" Margin="0,10,0,0">
+            <StackPanel>
+                <Button Command="{Binding LoadResultsForAppointmentCommand}" Content="Загрузить результаты" Width="150" Margin="0,5"/>
+                <DataGrid ItemsSource="{Binding SelectedAppointmentResults}" AutoGenerateColumns="True" MaxHeight="200"/>
+            </StackPanel>
+        </GroupBox>
     </Grid>
 </Page>

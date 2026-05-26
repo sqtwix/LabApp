@@ -11,7 +11,7 @@ public interface IAppointmentService
     Task<Appointment> CreateAppointmentAsync(CreateAppointmentDto dto);
     Task<Appointment> UpdateAppointmentAsync(Appointment appointment);
     Task<bool> DeleteAppointmentAsync(int id);
-    Task<(string Message, Appointment Updated)> UpdateAppointmentStatusAsync(int appointmentId, bool isMissed);
+    Task<(string Message, Appointment UpdatedAppointment)> UpdateAppointmentStatusAsync(int appointmentId, bool isMissed);
 
     // Услуги (services) – назначенные исследования внутри направления
     Task<IEnumerable<Service>> GetServicesByAppointmentAsync(int appointmentId);

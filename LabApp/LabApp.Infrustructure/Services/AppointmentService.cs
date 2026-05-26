@@ -64,16 +64,19 @@ public class AppointmentService : IAppointmentService
         return true;
     }
 
-    public async Task<(string Message, Appointment Updated)> UpdateAppointmentStatusAsync(int appointmentId, bool isMissed)
+    public async Task<(string Message, Appointment UpdatedAppointment)> UpdateAppointmentStatusAsync(int appointmentId, bool isMissed)
     {
-        // Вызов хранимой функции update_appointment_status
+        var sql = "SELECT * FROM update_appointment_status({0}, {1})";
         var result = await _context.Appointments
-            .FromSqlRaw("SELECT * FROM update_appointment_status({0}, {1})", appointmentId, isMissed)
-            .ToListAsync();
-        var updated = result.FirstOrDefault();
-        if (updated == null)
+            .FromSqlRaw(sql, appointmentId, isMissed)
+            .Select(a => new { a.AppointmentId, a.Status, a.AppointmentDate, a.AppointmentTime, a.PatientId, a.StaffId })
+            .FirstOrDefaultAsync();
+
+        if (result == null)
             return ("Запись не найдена", null);
-        return ("Успешно обновлено", updated);
+
+        var updated = await _context.Appointments.FindAsync(result.AppointmentId);
+        return ("Статус обновлён", updated);
     }
 
     public async Task<IEnumerable<Service>> GetServicesByAppointmentAsync(int appointmentId)
