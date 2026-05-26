@@ -81,6 +81,8 @@ public partial class App : System.Windows.Application
         services.AddTransient<ResearchesPage>();
         services.AddTransient<ReportsPageViewModel>();
         services.AddTransient<ReportsPage>();
+        services.AddTransient<AuditPageViewModel>();
+        services.AddTransient<AuditPage>();
     }
 }
 

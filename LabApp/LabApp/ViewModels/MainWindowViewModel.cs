@@ -63,6 +63,13 @@ namespace LabApp.WPF.ViewModels
                 Command = new RelayCommand(NavigateToReports),
                 IsVisible = _userRole == "админ"
             };
+            var auditItem = new MenuItemViewModel
+            {
+                Header = "Аудит",
+                Command = new RelayCommand(NavigateToAudit),
+                IsVisible = _userRole == "админ"
+            };
+            MenuItems.Add(auditItem);
             var exitItem = new MenuItemViewModel
             {
                 Header = "Выход",
@@ -115,6 +122,12 @@ namespace LabApp.WPF.ViewModels
         private void NavigateToReports()
         {
             CurrentPage = _serviceProvider.GetRequiredService<ReportsPage>();
+        }
+
+        [RelayCommand]
+        private void NavigateToAudit()
+        {
+            CurrentPage = _serviceProvider.GetRequiredService<AuditPage>();
         }
 
         private void Exit()
