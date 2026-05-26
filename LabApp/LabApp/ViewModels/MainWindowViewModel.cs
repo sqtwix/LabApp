@@ -88,6 +88,12 @@ namespace LabApp.WPF.ViewModels
                 Command = new RelayCommand(NavigateToResults),
                 IsVisible = true // или по роли, если нужно
             };
+            var servicesItem = new MenuItemViewModel
+            {
+                Header = "Услуги",
+                Command = new RelayCommand(NavigateToServices),
+                IsVisible = true
+            };
 
             MenuItems.Add(resultsItem);
             MenuItems.Add(patientsItem);
@@ -98,6 +104,7 @@ namespace LabApp.WPF.ViewModels
             MenuItems.Add(exitItem);
             MenuItems.Add(equipmentItem);
             MenuItems.Add(auditItem);
+            MenuItems.Add(servicesItem);
 
             // Подписка на изменение выбранного элемента
             this.PropertyChanged += (s, e) =>
@@ -155,6 +162,12 @@ namespace LabApp.WPF.ViewModels
         private void NavigateToResults()
         {
             CurrentPage = _serviceProvider.GetRequiredService<ResultsPage>();
+        }
+
+        [RelayCommand]
+        private void NavigateToServices()
+        {
+            CurrentPage = _serviceProvider.GetRequiredService<ServicesPage>();
         }
 
         [RelayCommand]
