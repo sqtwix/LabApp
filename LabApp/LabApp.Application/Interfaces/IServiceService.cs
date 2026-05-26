@@ -9,4 +9,10 @@ public interface IServiceService
     Task<Service> CreateServiceAsync(Service service);
     Task<Service> UpdateServiceAsync(Service service);
     Task<bool> DeleteServiceAsync(int staffId, int researchId, int appointmentId);
+
+    Task<IEnumerable<Staff>> GetAllStaffsAsync();
+    Task<IEnumerable<Research>> GetAllResearchesAsync();
+    Task<IEnumerable<PaymentType>> GetAllPaymentTypesAsync();
+    Task<IEnumerable<Department>> GetAllDepartmentsAsync();
+    Task<IEnumerable<Appointment>> GetAllAppointmentsAsync();
 }
