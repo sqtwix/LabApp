@@ -4,191 +4,205 @@ using LabApp.WPF.Pages;
 using LabApp.WPF.Utils;
 using Microsoft.Extensions.DependencyInjection;
 using System.Collections.ObjectModel;
+using System.Windows;
 using System.Windows.Controls;
-using LabApp.WPF.Utils;
 
-namespace LabApp.WPF.ViewModels
+namespace LabApp.WPF.ViewModels;
+
+public partial class MainWindowViewModel : ObservableObject
 {
-    public partial class MainWindowViewModel : ObservableObject
+    private readonly IServiceProvider _serviceProvider;
+
+    public string? UserRole => CurrentUser.Role;
+    public string? UserFullName => CurrentUser.FullName;
+
+    [ObservableProperty]
+    private Page? _currentPage;
+
+    [ObservableProperty]
+    private MenuItemViewModel? _selectedMenuItem;
+
+    public ObservableCollection<MenuItemViewModel> MenuItems { get; } = new();
+
+    public MainWindowViewModel(IServiceProvider serviceProvider)
     {
-        private readonly IServiceProvider _serviceProvider;
-        private readonly string _userRole;
+        _serviceProvider = serviceProvider;
+        BuildMenu();
+    }
 
-        public string? UserRole => CurrentUser.Role;
-        public string? UserFullName => CurrentUser.FullName;
-
-        [ObservableProperty]
-        private Page? _currentPage;
-
-        [ObservableProperty]
-        private MenuItemViewModel? _selectedMenuItem;
-
-        public ObservableCollection<MenuItemViewModel> MenuItems { get; } = new();
-
-        public MainWindowViewModel(IServiceProvider serviceProvider)
+    private void BuildMenu()
+    {
+        var patientsItem = new MenuItemViewModel
         {
-            _serviceProvider = serviceProvider;
-            _userRole = CurrentUser.Role ?? "регистратор";
-            BuildMenu();
-        }
-
-        private void BuildMenu()
+            Header = "Пациенты",
+            Command = new RelayCommand(NavigateToPatients),
+            IsVisible = CurrentUser.Role != "лаборант"
+        };
+        var staffItem = new MenuItemViewModel
         {
-            var patientsItem = new MenuItemViewModel
-            {
-                Header = "Пациенты",
-                Command = new RelayCommand(NavigateToPatients),
-                IsVisible = _userRole != "лаборант"
-            };
-            var staffItem = new MenuItemViewModel
-            {
-                Header = "Сотрудники",
-                Command = new RelayCommand(NavigateToStaff),
-                IsVisible = _userRole != "регистратор"
-            };
-            var appointmentsItem = new MenuItemViewModel
-            {
-                Header = "Назначения",
-                Command = new RelayCommand(NavigateToAppointments),
-                IsVisible = true
-            };
-            var researchesItem = new MenuItemViewModel
-            {
-                Header = "Исследования",
-                Command = new RelayCommand(NavigateToResearches),
-                IsVisible = _userRole != "регистратор"
-            };
-            var reportsItem = new MenuItemViewModel
-            {
-                Header = "Отчёты",
-                Command = new RelayCommand(NavigateToReports),
-                IsVisible = _userRole == "админ"
-            };
-            var auditItem = new MenuItemViewModel
-            {
-                Header = "Аудит",
-                Command = new RelayCommand(NavigateToAudit),
-                IsVisible = _userRole == "админ"
-            };
-            var equipmentItem = new MenuItemViewModel
-            {
-                Header = "Оборудование",
-                Command = new RelayCommand(NavigateToEquipment),
-                IsVisible = _userRole != "регистратор" // лаборант и админ видят
-            };
-            var exitItem = new MenuItemViewModel
-            {
-                Header = "Выход",
-                Command = new RelayCommand(Exit),
-                IsVisible = true
-            };
-            var resultsItem = new MenuItemViewModel
-            {
-                Header = "Результаты",
-                Command = new RelayCommand(NavigateToResults),
-                IsVisible = true // или по роли, если нужно
-            };
-            var servicesItem = new MenuItemViewModel
-            {
-                Header = "Услуги",
-                Command = new RelayCommand(NavigateToServices),
-                IsVisible = true
-            };
-
-            MenuItems.Add(resultsItem);
-            MenuItems.Add(patientsItem);
-            MenuItems.Add(staffItem);
-            MenuItems.Add(appointmentsItem);
-            MenuItems.Add(researchesItem);
-            MenuItems.Add(reportsItem);
-            MenuItems.Add(exitItem);
-            MenuItems.Add(equipmentItem);
-            MenuItems.Add(auditItem);
-            MenuItems.Add(servicesItem);
-
-            // Подписка на изменение выбранного элемента
-            this.PropertyChanged += (s, e) =>
-            {
-                if (e.PropertyName == nameof(SelectedMenuItem) && SelectedMenuItem?.Command != null)
-                {
-                    SelectedMenuItem.Command.Execute(null);
-                    SelectedMenuItem = null;
-                }
-            };
-        }
-
-        private void NavigateToPatients()
+            Header = "Сотрудники",
+            Command = new RelayCommand(NavigateToStaff),
+            IsVisible = CurrentUser.Role != "регистратор"
+        };
+        var appointmentsItem = new MenuItemViewModel
         {
-            CurrentPage = _serviceProvider.GetRequiredService<PatientPage>();
-        }
-
-        [RelayCommand]
-        private void NavigateToStaff()
+            Header = "Назначения",
+            Command = new RelayCommand(NavigateToAppointments),
+            IsVisible = true
+        };
+        var researchesItem = new MenuItemViewModel
         {
-            CurrentPage = _serviceProvider.GetRequiredService<StaffPage>();
-        }
-
-        [RelayCommand]
-        private void NavigateToAppointments()
+            Header = "Исследования",
+            Command = new RelayCommand(NavigateToResearches),
+            IsVisible = CurrentUser.Role != "регистратор"
+        };
+        var equipmentItem = new MenuItemViewModel
         {
-            CurrentPage = _serviceProvider.GetRequiredService<AppointmentsPage>();
-        }
-
-        [RelayCommand]
-        private void NavigateToResearches()
+            Header = "Оборудование",
+            Command = new RelayCommand(NavigateToEquipment),
+            IsVisible = CurrentUser.Role != "регистратор"
+        };
+        var resultsItem = new MenuItemViewModel
         {
-            CurrentPage = _serviceProvider.GetRequiredService<ResearchesPage>();
-        }
-
-        [RelayCommand]
-        private void NavigateToReports()
+            Header = "Результаты",
+            Command = new RelayCommand(NavigateToResults),
+            IsVisible = true
+        };
+        var servicesItem = new MenuItemViewModel
         {
-            CurrentPage = _serviceProvider.GetRequiredService<ReportsPage>();
-        }
-
-        [RelayCommand]
-        private void NavigateToAudit()
+            Header = "Услуги",
+            Command = new RelayCommand(NavigateToServices),
+            IsVisible = true
+        };
+        var reportsItem = new MenuItemViewModel
         {
-            CurrentPage = _serviceProvider.GetRequiredService<AuditPage>();
-        }
-
-        [RelayCommand]
-        private void NavigateToEquipment()
+            Header = "Отчёты",
+            Command = new RelayCommand(NavigateToReports),
+            IsVisible = CurrentUser.Role == "админ"
+        };
+        var auditItem = new MenuItemViewModel
         {
-            CurrentPage = _serviceProvider.GetRequiredService<EquipmentPage>();
-        }
+            Header = "Аудит",
+            Command = new RelayCommand(NavigateToAudit),
+            IsVisible = CurrentUser.Role == "админ"
+        };
 
-        [RelayCommand]
-        private void NavigateToResults()
+        MenuItems.Add(patientsItem);
+        MenuItems.Add(staffItem);
+        MenuItems.Add(appointmentsItem);
+        MenuItems.Add(researchesItem);
+        MenuItems.Add(equipmentItem);
+        MenuItems.Add(resultsItem);
+        MenuItems.Add(servicesItem);
+        MenuItems.Add(reportsItem);
+        MenuItems.Add(auditItem);
+    }
+
+            private void NavigateToPatients()
+    {
+        CurrentPage = _serviceProvider.GetRequiredService<PatientPage>();
+    }
+
+    private void NavigateToStaff()
+    {
+        CurrentPage = _serviceProvider.GetRequiredService<StaffPage>();
+    }
+
+    private void NavigateToAppointments()
+    {
+        CurrentPage = _serviceProvider.GetRequiredService<AppointmentsPage>();
+    }
+
+    private void NavigateToResearches()
+    {
+        CurrentPage = _serviceProvider.GetRequiredService<ResearchesPage>();
+    }
+
+    private void NavigateToEquipment()
+    {
+        CurrentPage = _serviceProvider.GetRequiredService<EquipmentPage>();
+    }
+
+    private void NavigateToResults()
+    {
+        CurrentPage = _serviceProvider.GetRequiredService<ResultsPage>();
+    }
+
+    private void NavigateToServices()
+    {
+        CurrentPage = _serviceProvider.GetRequiredService<ServicesPage>();
+    }
+
+    private void NavigateToReports()
+    {
+        CurrentPage = _serviceProvider.GetRequiredService<ReportsPage>();
+    }
+
+    private void NavigateToAudit()
+    {
+        CurrentPage = _serviceProvider.GetRequiredService<AuditPage>();
+    }
+
+    [RelayCommand]
+    private void SwitchUser()
+    {
+        var result = MessageBox.Show(
+            "Вы действительно хотите сменить пользователя?\nНесохранённые данные будут потеряны.",
+            "Подтверждение смены пользователя",
+            MessageBoxButton.YesNo,
+            MessageBoxImage.Question);
+
+        if (result != MessageBoxResult.Yes)
+            return;
+
+        // Очищаем данные текущего пользователя
+        CurrentUser.StaffId = 0;
+        CurrentUser.Role = string.Empty;
+        CurrentUser.FullName = string.Empty;
+
+        // Закрываем главное окно
+        var mainWindow = App.Current.Windows.OfType<MainWindow>().FirstOrDefault();
+        if (mainWindow != null)
+            mainWindow.Visibility = Visibility.Hidden; // Скрываем, чтобы не мешалось
+
+        // Открываем окно авторизации
+        var loginWindow = _serviceProvider.GetRequiredService<LoginWindow>();
+        loginWindow.Closed += (s, e) =>
         {
-            CurrentPage = _serviceProvider.GetRequiredService<ResultsPage>();
-        }
+            // Если пользователь не авторизовался (окно закрыто без входа), выходим из приложения
+            if (!CurrentUser.IsAuthenticated)
+                App.Current.Shutdown();
+            else
+                mainWindow?.Close(); // Закрываем скрытое окно после успешного входа
+        };
+        loginWindow.Show();
 
-        [RelayCommand]
-        private void NavigateToServices()
+        // Закрываем текущее главное окно, если оно было открыто
+        mainWindow?.Close();
+    }
+
+    [RelayCommand]
+    private void ExitApp()
+    {
+        var result = MessageBox.Show(
+            "Вы действительно хотите выйти из приложения?",
+            "Подтверждение выхода",
+            MessageBoxButton.YesNo,
+            MessageBoxImage.Question);
+
+        if (result == MessageBoxResult.Yes)
         {
-            CurrentPage = _serviceProvider.GetRequiredService<ServicesPage>();
+            App.Current.Shutdown();
         }
+    }
 
-        [RelayCommand]
-        private void SwitchUser()
-        {
-            // Очищаем данные текущего пользователя
-            CurrentUser.StaffId = 0;
-            CurrentUser.Role = string.Empty;
-            CurrentUser.FullName = string.Empty;
-
-            // Закрываем главное окно
-            var mainWindow = System.Windows.Application.Current.Windows.OfType<MainWindow>().FirstOrDefault();
-            mainWindow?.Close();
-
-            // Открываем окно логина
-            var loginWindow = _serviceProvider.GetRequiredService<LoginWindow>();
-            loginWindow.Show();
-        }
-
-        private void Exit()
-        {
-        }
+    [RelayCommand]
+    private void ShowInfo()
+    {
+        MessageBox.Show(
+            "Медицинская лаборатория\nВерсия 1.0\nРазработано в рамках курсового проекта",
+            "О программе",
+            MessageBoxButton.OK,
+            MessageBoxImage.Information);
     }
 }

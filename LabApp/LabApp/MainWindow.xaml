@@ -1,8 +1,16 @@
 ﻿<Window x:Class="LabApp.WPF.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         Title="Медицинская лаборатория" Height="680" Width="1080"
-        WindowStartupLocation="CenterScreen">
+        WindowStartupLocation="CenterScreen"
+        TextElement.Foreground="{DynamicResource MaterialDesignBody}"
+        TextElement.FontWeight="Regular"
+        TextElement.FontSize="14"
+        TextOptions.TextFormattingMode="Ideal"
+        TextOptions.TextRenderingMode="Auto"
+        Background="{DynamicResource MaterialDesignPaper}"
+        FontFamily="{DynamicResource MaterialDesignFont}">
 
     <Window.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVisibility"/>
@@ -14,42 +22,47 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <!-- Меню -->
-        <Grid Grid.Row="0">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="Auto"/>
-            </Grid.ColumnDefinitions>
-            
-            <Menu Grid.Column="0">
-                <MenuItem Header="Система">...</MenuItem>
-                <MenuItem Header="Функции">...</MenuItem>
-                <MenuItem Header="Отчёты" />
-                <MenuItem Header="🛈" />
-            </Menu>
-            
-            <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="10,0">
-                <TextBlock Text="{Binding UserRole}" 
-                           FontWeight="Bold"
-                           ToolTip="роль"/>
-                <TextBlock
-                    Width="20"/>
+        <materialDesign:ColorZone Grid.Row="0" Mode="PrimaryMid" Padding="10" Panel.ZIndex="1">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
 
-                <TextBlock Text="{Binding UserFullName}" 
-                           FontWeight="Bold"
-                           ToolTip="ФИО"/>
-            </StackPanel>
-        </Grid>
+                <Menu Grid.Column="0" Background="Transparent" VerticalAlignment="Center" FontSize="15">
+                    <MenuItem Header="Система" Foreground="White">
+                        <MenuItem Header="Сменить пользователя" Command="{Binding SwitchUserCommand}" Foreground="{DynamicResource MaterialDesignBody}">
+                            <MenuItem.Icon>
+                                <materialDesign:PackIcon Kind="AccountSwitch" />
+                            </MenuItem.Icon>
+                        </MenuItem>
+                        <Separator/>
+                        <MenuItem Header="Выход из приложения" Command="{Binding ExitAppCommand}" Foreground="{DynamicResource MaterialDesignBody}">
+                            <MenuItem.Icon>
+                                <materialDesign:PackIcon Kind="ExitToApp" />
+                            </MenuItem.Icon>
+                        </MenuItem>
+                    </MenuItem>
+                    <MenuItem Header="🛈 Справка" Command="{Binding ShowInfoCommand}" Foreground="White"/>
+                </Menu>
 
-        <!-- Основная область: левая панель + Frame -->
+                <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" Margin="10,0" TextElement.Foreground="White">
+                    <materialDesign:PackIcon Kind="AccountCircle" VerticalAlignment="Center" Width="24" Height="24" Margin="0,0,8,0"/>
+                    <TextBlock Text="{Binding UserRole}" FontWeight="Medium" ToolTip="Роль" VerticalAlignment="Center"/>
+                    <TextBlock Text=" | " Margin="5,0" VerticalAlignment="Center" Opacity="0.7"/>
+                    <TextBlock Text="{Binding UserFullName}" FontWeight="Bold" ToolTip="ФИО" VerticalAlignment="Center"/>
+                </StackPanel>
+            </Grid>
+        </materialDesign:ColorZone>
+
         <Grid Grid.Row="1">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="200"/>
+                <ColumnDefinition Width="220"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
 
-            <!-- Левая панель с прокруткой -->
-            <Border Grid.Column="0" BorderBrush="LightGray" BorderThickness="0,0,1,0">
+            <Border Grid.Column="0" BorderBrush="LightGray" BorderThickness="0,0,1,0" Background="White">
                 <ScrollViewer VerticalScrollBarVisibility="Auto">
                     <ListBox ItemsSource="{Binding MenuItems}" 
                              SelectedItem="{Binding SelectedMenuItem}"
@@ -67,11 +80,11 @@
                 </ScrollViewer>
             </Border>
 
-            <!-- Правая область с Frame -->
             <Frame Grid.Column="1" 
                    x:Name="ContentFrame" 
                    Content="{Binding CurrentPage}" 
-                   NavigationUIVisibility="Hidden"/>
+                   NavigationUIVisibility="Hidden"
+                   Margin="10"/>
         </Grid>
     </Grid>
 </Window>
