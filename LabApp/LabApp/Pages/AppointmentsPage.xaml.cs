@@ -8,6 +8,7 @@ namespace LabApp.WPF.Pages;
 public partial class AppointmentsPage : Page
 {
     private AppointmentsPageViewModel _viewModel;
+    private bool _isSaving = false;
 
     public AppointmentsPage(AppointmentsPageViewModel viewModel)
     {
@@ -16,36 +17,63 @@ public partial class AppointmentsPage : Page
         _viewModel = viewModel;
     }
 
-    private async void DataGrid_RowEditEnding(object sender, DataGridRowEditEndingEventArgs e)
+    private void DataGrid_RowEditEnding(object sender, DataGridRowEditEndingEventArgs e)
     {
         if (e.EditAction == DataGridEditAction.Commit)
         {
+            if (_isSaving) return;
+
             var appointment = e.Row.Item as Appointment;
             if (appointment != null)
             {
-                await _viewModel.SaveAppointmentAsync(appointment);
+                Dispatcher.InvokeAsync(async () =>
+                {
+                    _isSaving = true;
+                    try
+                    {
+                        await _viewModel.SaveAppointmentAsync(appointment);
+                    }
+                    finally
+                    {
+                        _isSaving = false;
+                    }
+                }, System.Windows.Threading.DispatcherPriority.Background);
             }
         }
     }
 
-    private async void StatusComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    private void StatusComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
         var combo = sender as ComboBox;
-        var appointment = combo?.DataContext as Appointment;
+
+        // ВАЖНО: Защита от авто-срабатывания WPF при загрузке данных в DataGrid
+        if (combo == null || !combo.IsDropDownOpen) return;
+
+        // Защита от параллельного сохранения строки
+        if (_isSaving || _viewModel.IsBusy) return;
+
+        var appointment = combo.DataContext as Appointment;
         if (appointment == null) return;
 
         string newStatus = combo.SelectedItem as string;
         if (string.IsNullOrEmpty(newStatus)) return;
 
         bool isMissed = (newStatus == "Не пришёл");
-        await _viewModel.UpdateStatusAsync(appointment, isMissed);
+
+        // Отправляем в очередь, чтобы не вешать UI-поток
+        Dispatcher.InvokeAsync(async () =>
+        {
+            await _viewModel.UpdateStatusAsync(appointment, isMissed);
+        });
     }
 
-    private async void DataGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    private void DataGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
-        if (_viewModel.SelectedAppointment != null)
+        // Не пытаемся грузить результаты, если строка сейчас сохраняется!
+        if (_viewModel.SelectedAppointment != null && !_isSaving && !_viewModel.IsBusy)
         {
-            await _viewModel.LoadResultsForAppointmentCommand.ExecuteAsync(null);
+            // Безопасный вызов команды
+            _viewModel.LoadResultsForAppointmentCommand.Execute(null);
         }
     }
 }

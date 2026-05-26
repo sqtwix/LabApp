@@ -3,9 +3,11 @@
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:converters="clr-namespace:LabApp.WPF.Converters"
       Title="Записи на приём">
+
     <Page.Resources>
         <converters:DateOnlyToDateTimeConverter x:Key="DateOnlyToDateTimeConverter"/>
     </Page.Resources>
+
     <Grid Margin="10">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -28,6 +30,7 @@
                   SelectionChanged="DataGrid_SelectionChanged">
             <DataGrid.Columns>
                 <DataGridTextColumn Header="ID" Binding="{Binding AppointmentId}" IsReadOnly="True" Width="50"/>
+
                 <DataGridTemplateColumn Header="Пациент" Width="150">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
@@ -43,6 +46,7 @@
                         </DataTemplate>
                     </DataGridTemplateColumn.CellEditingTemplate>
                 </DataGridTemplateColumn>
+
                 <DataGridTemplateColumn Header="Сотрудник" Width="150">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
@@ -58,18 +62,20 @@
                         </DataTemplate>
                     </DataGridTemplateColumn.CellEditingTemplate>
                 </DataGridTemplateColumn>
-                <DataGridTemplateColumn Header="Дата" Width="100">
+
+                <DataGridTemplateColumn Header="Дата" Width="120">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
-                            <TextBlock Text="{Binding AppointmentDate}"/>
+                            <TextBlock Text="{Binding AppointmentDate, StringFormat=dd.MM.yyyy}"/>
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                     <DataGridTemplateColumn.CellEditingTemplate>
                         <DataTemplate>
-                            <DatePicker SelectedDate="{Binding AppointmentDate, Converter={StaticResource DateOnlyToDateTimeConverter}}"/>
+                            <DatePicker SelectedDate="{Binding AppointmentDate, Converter={StaticResource DateOnlyToDateTimeConverter}, UpdateSourceTrigger=PropertyChanged}"/>
                         </DataTemplate>
                     </DataGridTemplateColumn.CellEditingTemplate>
                 </DataGridTemplateColumn>
+
                 <DataGridTemplateColumn Header="Время" Width="80">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
@@ -78,10 +84,11 @@
                     </DataGridTemplateColumn.CellTemplate>
                     <DataGridTemplateColumn.CellEditingTemplate>
                         <DataTemplate>
-                            <TextBox Text="{Binding AppointmentTime}"/>
+                            <TextBox Text="{Binding AppointmentTime, UpdateSourceTrigger=PropertyChanged}"/>
                         </DataTemplate>
                     </DataGridTemplateColumn.CellEditingTemplate>
                 </DataGridTemplateColumn>
+
                 <DataGridTemplateColumn Header="Статус" Width="140">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
@@ -97,9 +104,12 @@
                     </DataGridTemplateColumn.CellEditingTemplate>
                 </DataGridTemplateColumn>
             </DataGrid.Columns>
+
             <DataGrid.ContextMenu>
                 <ContextMenu>
-                    <MenuItem Header="Удалить" Command="{Binding DeleteAppointmentCommand}" CommandParameter="{Binding SelectedItem, RelativeSource={RelativeSource AncestorType=DataGrid}}"/>
+                    <MenuItem Header="Удалить" 
+                              Command="{Binding DataContext.DeleteAppointmentCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}" 
+                              CommandParameter="{Binding PlacementTarget.SelectedItem, RelativeSource={RelativeSource AncestorType=ContextMenu}}"/>
                 </ContextMenu>
             </DataGrid.ContextMenu>
         </DataGrid>
