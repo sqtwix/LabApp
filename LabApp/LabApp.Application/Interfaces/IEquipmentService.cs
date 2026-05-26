@@ -22,5 +22,6 @@ public interface IEquipmentService
     Task<IEnumerable<Equipment>> GetEquipmentForResearchAsync(int researchId);
     Task AssignEquipmentToResearchAsync(int researchId, int equipmentId);
     Task UnassignEquipmentFromResearchAsync(int researchId, int equipmentId);
+    Task<IEnumerable<Room>> GetAllRoomsAsync();
 }
 

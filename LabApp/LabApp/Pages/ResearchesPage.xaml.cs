@@ -1,4 +1,5 @@
 ﻿using System.Windows.Controls;
+using LabApp.Domain.Entities;
 using LabApp.WPF.ViewModels;
 
 namespace LabApp.WPF.Pages;
@@ -6,6 +7,7 @@ namespace LabApp.WPF.Pages;
 public partial class ResearchesPage : Page
 {
     private ResearchesPageViewModel _viewModel;
+    private bool _isSaving = false;
 
     public ResearchesPage(ResearchesPageViewModel viewModel)
     {
@@ -14,14 +16,27 @@ public partial class ResearchesPage : Page
         _viewModel = viewModel;
     }
 
-    private async void DataGrid_RowEditEnding(object sender, DataGridRowEditEndingEventArgs e)
+    private void DataGrid_RowEditEnding(object sender, DataGridRowEditEndingEventArgs e)
     {
         if (e.EditAction == DataGridEditAction.Commit)
         {
-            var research = e.Row.Item as Domain.Entities.Research;
+            if (_isSaving) return;
+
+            var research = e.Row.Item as Research;
             if (research != null)
             {
-                await _viewModel.SaveResearchAsync(research);
+                Dispatcher.InvokeAsync(async () =>
+                {
+                    _isSaving = true;
+                    try
+                    {
+                        await _viewModel.SaveResearchAsync(research);
+                    }
+                    finally
+                    {
+                        _isSaving = false;
+                    }
+                }, System.Windows.Threading.DispatcherPriority.Background);
             }
         }
     }

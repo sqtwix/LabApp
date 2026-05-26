@@ -1,9 +1,12 @@
 ﻿using LabApp.Application.Interfaces;
 using LabApp.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
-
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace LabApp.Infrustructure.Services;
+
 public class ResearchService : IResearchService
 {
     private readonly LabContext _context;
@@ -29,16 +32,33 @@ public class ResearchService : IResearchService
 
     public async Task<Research> CreateResearchAsync(Research research)
     {
+        // Ручная генерация ID, так как в БД нет SERIAL для этой таблицы
+        var maxId = await _context.Researches.MaxAsync(r => (int?)r.ResearchId) ?? 0;
+        research.ResearchId = maxId + 1;
+
+        // Если тип исследования не выбран, ставим заглушку (в БД поле NOT NULL, берем первый существующий тип, например 2)
+        if (research.ResearchTypeId <= 0)
+            research.ResearchTypeId = 2;
+
         _context.Researches.Add(research);
         await _context.SaveChangesAsync();
-        return research;
+
+        // Перезапрашиваем, чтобы подтянулся объект ResearchType для UI
+        return await GetResearchByIdAsync(research.ResearchId);
     }
 
     public async Task<Research> UpdateResearchAsync(Research research)
     {
-        _context.Entry(research).State = EntityState.Modified;
+        var existing = await _context.Researches.FindAsync(research.ResearchId);
+        if (existing == null) return null;
+
+        existing.Name = research.Name;
+        existing.Cost = research.Cost;
+        existing.ResearchTypeId = research.ResearchTypeId;
+        existing.ReagentId = research.ReagentId;
+
         await _context.SaveChangesAsync();
-        return research;
+        return existing;
     }
 
     public async Task<bool> DeleteResearchAsync(int id)

@@ -7,6 +7,7 @@ namespace LabApp.WPF.Pages;
 public partial class EquipmentPage : Page
 {
     private EquipmentPageViewModel _viewModel;
+    private bool _isSaving = false;
 
     public EquipmentPage(EquipmentPageViewModel viewModel)
     {
@@ -15,14 +16,27 @@ public partial class EquipmentPage : Page
         _viewModel = viewModel;
     }
 
-    private async void DataGrid_RowEditEnding(object sender, DataGridRowEditEndingEventArgs e)
+    private void DataGrid_RowEditEnding(object sender, DataGridRowEditEndingEventArgs e)
     {
         if (e.EditAction == DataGridEditAction.Commit)
         {
+            if (_isSaving) return;
+
             var equipment = e.Row.Item as Equipment;
             if (equipment != null)
             {
-                await _viewModel.SaveEquipmentAsync(equipment);
+                Dispatcher.InvokeAsync(async () =>
+                {
+                    _isSaving = true;
+                    try
+                    {
+                        await _viewModel.SaveEquipmentAsync(equipment);
+                    }
+                    finally
+                    {
+                        _isSaving = false;
+                    }
+                }, System.Windows.Threading.DispatcherPriority.Background);
             }
         }
     }

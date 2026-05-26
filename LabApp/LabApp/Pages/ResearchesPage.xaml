@@ -14,7 +14,7 @@
             <Button Command="{Binding AddResearchCommand}" Content="+" Width="80"/>
         </StackPanel>
 
-        <DataGrid Grid.Row="1" 
+        <DataGrid Grid.Row="1" x:Name="ResearchesDataGrid"
                   ItemsSource="{Binding Researches}" 
                   SelectedItem="{Binding SelectedResearch}"
                   AutoGenerateColumns="False"
@@ -23,8 +23,10 @@
                   RowEditEnding="DataGrid_RowEditEnding">
             <DataGrid.Columns>
                 <DataGridTextColumn Header="ID" Binding="{Binding ResearchId}" IsReadOnly="True" Width="50"/>
-                <DataGridTextColumn Header="Название" Binding="{Binding Name}" Width="200"/>
-                <DataGridTextColumn Header="Стоимость" Binding="{Binding Cost}" Width="100"/>
+                
+                <DataGridTextColumn Header="Название" Binding="{Binding Name, UpdateSourceTrigger=PropertyChanged}" Width="200"/>
+                <DataGridTextColumn Header="Стоимость" Binding="{Binding Cost, UpdateSourceTrigger=PropertyChanged}" Width="100"/>
+                
                 <DataGridTemplateColumn Header="Тип исследования" Width="150">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
@@ -41,12 +43,15 @@
                         </DataTemplate>
                     </DataGridTemplateColumn.CellEditingTemplate>
                 </DataGridTemplateColumn>
-                <DataGridTextColumn Header="Reagent ID" Binding="{Binding ReagentId}" Width="80"/>
+                
+                <DataGridTextColumn Header="Reagent ID" Binding="{Binding ReagentId, UpdateSourceTrigger=PropertyChanged}" Width="80"/>
             </DataGrid.Columns>
+            
             <DataGrid.ContextMenu>
                 <ContextMenu>
-                    <MenuItem Header="Удалить" Command="{Binding DeleteResearchCommand}" 
-                              CommandParameter="{Binding SelectedItem, RelativeSource={RelativeSource AncestorType=DataGrid}}"/>
+                    <MenuItem Header="Удалить" 
+                              Command="{Binding DataContext.DeleteResearchCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}" 
+                              CommandParameter="{Binding PlacementTarget.SelectedItem, RelativeSource={RelativeSource AncestorType=ContextMenu}}"/>
                 </ContextMenu>
             </DataGrid.ContextMenu>
         </DataGrid>

@@ -1,7 +1,13 @@
 ﻿<Page x:Class="LabApp.WPF.Pages.EquipmentPage"
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:converters="clr-namespace:LabApp.WPF.Converters"
       Title="Оборудование">
+
+    <Page.Resources>
+        <converters:DateOnlyToDateTimeConverter x:Key="DateOnlyToDateTimeConverter"/>
+    </Page.Resources>
+
     <Grid Margin="10">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -10,11 +16,11 @@
         </Grid.RowDefinitions>
 
         <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,10">
-            <Button Command="{Binding LoadEquipmentCommand}" Content="⟳" Width="80" Margin="0,0,10,0"/>
+            <Button Command="{Binding LoadDataCommand}" Content="⟳" Width="80" Margin="0,0,10,0"/>
             <Button Command="{Binding AddEquipmentCommand}" Content="+" Width="80"/>
         </StackPanel>
 
-        <DataGrid Grid.Row="1" 
+        <DataGrid Grid.Row="1" x:Name="EquipmentDataGrid"
                   ItemsSource="{Binding EquipmentList}" 
                   SelectedItem="{Binding SelectedEquipment}"
                   AutoGenerateColumns="False"
@@ -23,7 +29,9 @@
                   RowEditEnding="DataGrid_RowEditEnding">
             <DataGrid.Columns>
                 <DataGridTextColumn Header="ID" Binding="{Binding EquipmentId}" IsReadOnly="True" Width="50"/>
-                <DataGridTextColumn Header="Название" Binding="{Binding Name}" Width="200"/>
+
+                <DataGridTextColumn Header="Название" Binding="{Binding Name, UpdateSourceTrigger=PropertyChanged}" Width="200"/>
+
                 <DataGridTemplateColumn Header="Кабинет" Width="100">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
@@ -39,12 +47,28 @@
                         </DataTemplate>
                     </DataGridTemplateColumn.CellEditingTemplate>
                 </DataGridTemplateColumn>
-                <DataGridTextColumn Header="Дата ввода" Binding="{Binding ExplotationDate}" Width="120"/>
-                <DataGridTextColumn Header="Срок службы" Binding="{Binding ServiceLife}" Width="100"/>
+
+                <DataGridTemplateColumn Header="Дата ввода" Width="120">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding ExplotationDate, StringFormat=dd.MM.yyyy}"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                    <DataGridTemplateColumn.CellEditingTemplate>
+                        <DataTemplate>
+                            <DatePicker SelectedDate="{Binding ExplotationDate, Converter={StaticResource DateOnlyToDateTimeConverter}, UpdateSourceTrigger=PropertyChanged}"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellEditingTemplate>
+                </DataGridTemplateColumn>
+
+                <DataGridTextColumn Header="Срок службы (лет)" Binding="{Binding ServiceLife, UpdateSourceTrigger=PropertyChanged}" Width="120"/>
             </DataGrid.Columns>
+
             <DataGrid.ContextMenu>
                 <ContextMenu>
-                    <MenuItem Header="Удалить" Command="{Binding DeleteEquipmentCommand}" CommandParameter="{Binding SelectedItem, RelativeSource={RelativeSource AncestorType=DataGrid}}"/>
+                    <MenuItem Header="Удалить" 
+                              Command="{Binding DataContext.DeleteEquipmentCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}" 
+                              CommandParameter="{Binding PlacementTarget.SelectedItem, RelativeSource={RelativeSource AncestorType=ContextMenu}}"/>
                 </ContextMenu>
             </DataGrid.ContextMenu>
         </DataGrid>
