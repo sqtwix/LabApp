@@ -4,12 +4,15 @@ using LabApp.Application.Interfaces;
 using LabApp.Domain.Entities;
 using System.Collections.ObjectModel;
 using System.Windows;
+using System.Threading.Tasks;
+using System;
 
 namespace LabApp.WPF.ViewModels;
 
 public partial class PatientPageViewModel : ObservableObject
 {
     private readonly IPatientService _patientService;
+    private readonly IStaffService _staffService;
 
     [ObservableProperty]
     private ObservableCollection<Patient> _patients = new();
@@ -17,50 +20,85 @@ public partial class PatientPageViewModel : ObservableObject
     [ObservableProperty]
     private ObservableCollection<City> _cities = new();
 
-    private readonly IStaffService _staffService;
+    [ObservableProperty]
+    private Patient? _selectedPatient;
+
+    // Флаг для защиты от двойных вызовов
+    [ObservableProperty]
+    private bool _isBusy;
 
     public PatientPageViewModel(IPatientService patientService, IStaffService staffService)
     {
         _patientService = patientService;
         _staffService = staffService;
-        LoadPatientsCommand.Execute(null);
+
+        // Безопасный вызов загрузки без блокировки потока
+        Task.Run(() => System.Windows.Application.Current.Dispatcher.InvokeAsync(() => LoadPatientsCommand.Execute(null)));
     }
 
     [RelayCommand]
     private async Task LoadPatients()
     {
-        var list = await _patientService.GetAllPatientsAsync();
-        Patients.Clear();
-        foreach (var p in list)
-            Patients.Add(p);
+        if (IsBusy) return;
+        IsBusy = true;
 
-        var citiesList = await _staffService.GetAllCitiesAsync();
-        Cities.Clear();
-        foreach (var c in citiesList) Cities.Add(c);
+        try
+        {
+            var list = await _patientService.GetAllPatientsAsync();
+            Patients.Clear();
+            foreach (var p in list)
+                Patients.Add(p);
+
+            var citiesList = await _staffService.GetAllCitiesAsync();
+            Cities.Clear();
+            foreach (var c in citiesList) Cities.Add(c);
+        }
+        finally
+        {
+            IsBusy = false;
+        }
     }
 
-    // Сохранение одной записи (после редактирования)
     public async Task SavePatientAsync(Patient patient)
     {
-        if (patient.PatientId <= 0) // новая запись
+        if (IsBusy) return;
+        IsBusy = true;
+
+        try
         {
-            var created = await _patientService.CreatePatientAsync(patient);
-            // заменить временный объект на созданный (с реальным ID)
-            var index = Patients.IndexOf(patient);
-            if (index >= 0)
-                Patients[index] = created;
+            if (patient.PatientId <= 0) // новая запись
+            {
+                var created = await _patientService.CreatePatientAsync(patient);
+                var index = Patients.IndexOf(patient);
+                if (index >= 0)
+                    Patients[index] = created;
+            }
+            else
+            {
+                await _patientService.UpdatePatientAsync(patient);
+            }
         }
-        else
+        catch (Exception ex)
         {
-            await _patientService.UpdatePatientAsync(patient);
+            MessageBox.Show($"Ошибка сохранения: {ex.InnerException?.Message ?? ex.Message}", "Ошибка БД", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+        finally
+        {
+            IsBusy = false;
         }
     }
 
-    // Удаление
     [RelayCommand]
     private async Task DeletePatient(Patient patient)
     {
         if (patient == null) return;
+
+        if (patient.PatientId <= 0)
+        {
+            Patients.Remove(patient);
+            return;
+        }
+
         if (MessageBox.Show($"Удалить пациента {patient.LastName} {patient.FirstName}?",
                             "Подтверждение", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
         {
@@ -69,21 +107,18 @@ public partial class PatientPageViewModel : ObservableObject
         }
     }
 
-    // Добавление новой пустой строки
     [RelayCommand]
     private void AddPatient()
     {
         var newPatient = new Patient
         {
-            PatientId = -1, // временный ID
+            PatientId = -1,
             LastName = "Новый",
-            FirstName = "Пациент"
+            FirstName = "Пациент",
+            Gender = "М", // Дефолтное значение для избежания null в базе
+            BirthDate = new DateOnly(2000, 1, 1)
         };
         Patients.Add(newPatient);
-        // Можно установить выделение на новую строку (через SelectedPatient)
         SelectedPatient = newPatient;
     }
-
-    [ObservableProperty]
-    private Patient? _selectedPatient;
 }

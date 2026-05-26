@@ -16,4 +16,8 @@ public interface IResultService
 
     // Удаление
     Task<bool> DeleteResultAsync(int referralId, int researchId);
+
+    Task<IEnumerable<Appointment>> GetAllAppointmentsAsync();
+    Task<IEnumerable<Research>> GetAllResearchesAsync();
+    Task<IEnumerable<ResultCarrierType>> GetAllCarrierTypesAsync();
 }

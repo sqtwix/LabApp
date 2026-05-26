@@ -39,12 +39,32 @@ public class PatientService : IPatientService
 
     public async Task<Patient> CreatePatientAsync(Patient patient)
     {
-        patient.Passport = EncryptionHelper.Encrypt(patient.Passport);
-        patient.Address = EncryptionHelper.Encrypt(patient.Address);
-        _context.Patients.Add(patient);
-        await _context.SaveChangesAsync();
-        patient.Passport = EncryptionHelper.Decrypt(patient.Passport);
-        patient.Address = EncryptionHelper.Decrypt(patient.Address);
+        var plainAddress = patient.Address;
+        var plainPassport = patient.Passport;
+
+        try
+        {
+            // ГЕНЕРАЦИЯ ID: находим максимальный ID в таблице и прибавляем 1
+            var maxId = await _context.Patients.MaxAsync(p => (int?)p.PatientId) ?? 0;
+            patient.PatientId = maxId + 1;
+
+            patient.Passport = EncryptionHelper.Encrypt(plainPassport ?? "");
+            patient.Address = EncryptionHelper.Encrypt(plainAddress ?? "");
+
+            // В БД birth_date NOT NULL. Защита от пустой даты:
+            if (patient.BirthDate == default)
+                patient.BirthDate = new DateOnly(2000, 1, 1);
+
+            _context.Patients.Add(patient);
+            await _context.SaveChangesAsync();
+        }
+        finally
+        {
+            // Возвращаем объекту нормальный вид для отображения в UI
+            patient.Passport = plainPassport;
+            patient.Address = plainAddress;
+        }
+
         return patient;
     }
 
@@ -53,19 +73,31 @@ public class PatientService : IPatientService
         var existing = await _context.Patients.FindAsync(patient.PatientId);
         if (existing == null) return null;
 
-        existing.LastName = patient.LastName;
-        existing.FirstName = patient.FirstName;
-        existing.MiddleName = patient.MiddleName;
-        existing.BirthDate = patient.BirthDate;
-        existing.Gender = patient.Gender;
-        existing.Phone = patient.Phone;
-        existing.Address = EncryptionHelper.Encrypt(patient.Address);
-        existing.Passport = EncryptionHelper.Encrypt(patient.Passport);
-        existing.CityId = patient.CityId;
+        var plainAddress = patient.Address;
+        var plainPassport = patient.Passport;
 
-        await _context.SaveChangesAsync();
-        patient.Address = EncryptionHelper.Decrypt(existing.Address);
-        patient.Passport = EncryptionHelper.Decrypt(existing.Passport);
+        try
+        {
+            existing.LastName = patient.LastName;
+            existing.FirstName = patient.FirstName;
+            existing.MiddleName = patient.MiddleName;
+            existing.BirthDate = patient.BirthDate;
+            existing.Gender = patient.Gender;
+            existing.Phone = patient.Phone;
+            existing.CityId = patient.CityId;
+
+            existing.Address = EncryptionHelper.Encrypt(plainAddress ?? "");
+            existing.Passport = EncryptionHelper.Encrypt(plainPassport ?? "");
+
+            await _context.SaveChangesAsync();
+        }
+        finally
+        {
+            // Обновляем локальный объект (чтобы UI не увидел шифр)
+            patient.Address = plainAddress;
+            patient.Passport = plainPassport;
+        }
+
         return patient;
     }
 

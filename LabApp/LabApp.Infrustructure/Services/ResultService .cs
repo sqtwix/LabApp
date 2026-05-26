@@ -17,11 +17,22 @@ public class ResultService : IResultService
 
     public async Task<IEnumerable<Result>> GetAllResultsAsync()
     {
-        var results = await _context.Results.ToListAsync();
+        var results = await _context.Results
+            // Подгружаем связанные сущности, чтобы красиво отображать их в таблице в режиме чтения
+            .Include(r => r.CarrierType)
+            .Include(r => r.Research)
+            .ToListAsync();
+
         foreach (var r in results)
             r.Description = EncryptionHelper.Decrypt(r.Description);
+
         return results;
     }
+
+    // НОВЫЕ МЕТОДЫ ДЛЯ COMBOBOX (Обязательно добавьте их в интерфейс IResultService!)
+    public async Task<IEnumerable<Appointment>> GetAllAppointmentsAsync() => await _context.Appointments.ToListAsync();
+    public async Task<IEnumerable<Research>> GetAllResearchesAsync() => await _context.Researches.ToListAsync();
+    public async Task<IEnumerable<ResultCarrierType>> GetAllCarrierTypesAsync() => await _context.ResultCarrierTypes.ToListAsync();
 
     public async Task<Result?> GetResultByIdAsync(int referralId, int researchId)
     {
@@ -32,10 +43,17 @@ public class ResultService : IResultService
 
     public async Task<Result> CreateResultAsync(Result result)
     {
-        result.Description = EncryptionHelper.Encrypt(result.Description);
-        _context.Results.Add(result);
-        await _context.SaveChangesAsync();
-        result.Description = EncryptionHelper.Decrypt(result.Description);
+        var plainDesc = result.Description;
+        try
+        {
+            result.Description = EncryptionHelper.Encrypt(plainDesc ?? "");
+            _context.Results.Add(result);
+            await _context.SaveChangesAsync();
+        }
+        finally
+        {
+            result.Description = plainDesc;
+        }
         return result;
     }
 
@@ -45,12 +63,18 @@ public class ResultService : IResultService
             .FirstOrDefaultAsync(r => r.ReferralId == result.ReferralId && r.ResearchId == result.ResearchId);
         if (existing == null) return null;
 
-        existing.Description = EncryptionHelper.Encrypt(result.Description);
-        existing.CompletionDate = result.CompletionDate;
-        existing.CarrierTypeId = result.CarrierTypeId;
-
-        await _context.SaveChangesAsync();
-        result.Description = EncryptionHelper.Decrypt(existing.Description);
+        var plainDesc = result.Description;
+        try
+        {
+            existing.CompletionDate = result.CompletionDate;
+            existing.CarrierTypeId = result.CarrierTypeId;
+            existing.Description = EncryptionHelper.Encrypt(plainDesc ?? "");
+            await _context.SaveChangesAsync();
+        }
+        finally
+        {
+            result.Description = plainDesc;
+        }
         return result;
     }
 
@@ -59,6 +83,7 @@ public class ResultService : IResultService
         var result = await _context.Results
             .FirstOrDefaultAsync(r => r.ReferralId == referralId && r.ResearchId == researchId);
         if (result == null) return false;
+
         _context.Results.Remove(result);
         await _context.SaveChangesAsync();
         return true;

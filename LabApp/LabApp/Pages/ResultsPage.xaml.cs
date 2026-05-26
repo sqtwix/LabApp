@@ -7,6 +7,7 @@ namespace LabApp.WPF.Pages;
 public partial class ResultsPage : Page
 {
     private ResultsPageViewModel _viewModel;
+    private bool _isSaving = false;
 
     public ResultsPage(ResultsPageViewModel viewModel)
     {
@@ -15,14 +16,27 @@ public partial class ResultsPage : Page
         _viewModel = viewModel;
     }
 
-    private async void DataGrid_RowEditEnding(object sender, DataGridRowEditEndingEventArgs e)
+    private void DataGrid_RowEditEnding(object sender, DataGridRowEditEndingEventArgs e)
     {
         if (e.EditAction == DataGridEditAction.Commit)
         {
+            if (_isSaving) return;
+
             var result = e.Row.Item as Result;
             if (result != null)
             {
-                await _viewModel.SaveResultAsync(result);
+                Dispatcher.InvokeAsync(async () =>
+                {
+                    _isSaving = true;
+                    try
+                    {
+                        await _viewModel.SaveResultAsync(result);
+                    }
+                    finally
+                    {
+                        _isSaving = false;
+                    }
+                }, System.Windows.Threading.DispatcherPriority.Background);
             }
         }
     }
